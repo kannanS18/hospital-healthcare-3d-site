@@ -9,7 +9,7 @@ function DiagnosticModel({ mode, scanBeam, wireframe, autoRotate }) {
   const scanRingRef = useRef();
   const dnaRef = useRef();
 
-  const { scene } = useGLTF('/models/LeePerrySmith.glb');
+  const { scene } = useGLTF((import.meta.env.BASE_URL + 'models/LeePerrySmith.glb'));
   const headModel = useMemo(() => scene.clone(true), [scene]);
 
   const medicalMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
@@ -135,7 +135,7 @@ function DiagnosticModel({ mode, scanBeam, wireframe, autoRotate }) {
   );
 }
 
-useGLTF.preload('/models/LeePerrySmith.glb');
+// useGLTF.preload handled at runtime;
 
 export function HospitalCanvas() {
   const [mode, setMode] = useState('molecular');
