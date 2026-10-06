@@ -4,6 +4,7 @@ import { OrbitControls, Environment, Html } from '@react-three/drei';
 import { useVerticalStore } from '../store/useVerticalStore';
 import { HospitalScene } from './scenes/HospitalScene';
 import { CustomizerToolbar } from './components/CustomizerToolbar';
+import { CanvasErrorBoundary } from './CanvasErrorBoundary';
 
 function Loader() {
   return (
@@ -44,11 +45,12 @@ function CameraRig() {
 export function SceneContainer() {
   return (
     <div className="relative w-full h-[480px] sm:h-[540px] lg:h-[580px] overflow-hidden select-none">
-      <Canvas
-        shadows
-        camera={{ position: [0, 0.45, 3.4], fov: 40 }}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      >
+      <CanvasErrorBoundary>
+        <Canvas
+          shadows
+          camera={{ position: [0, 0.45, 3.4], fov: 40 }}
+          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        >
         <Suspense fallback={<Loader />}>
           {/* Studio Clinical Lighting */}
           <Environment preset="studio" environmentIntensity={0.65} />
@@ -85,6 +87,7 @@ export function SceneContainer() {
           <CameraRig />
         </Suspense>
       </Canvas>
+      </CanvasErrorBoundary>
 
       {/* 3D Floating Live Controls Toolbar */}
       <CustomizerToolbar />
