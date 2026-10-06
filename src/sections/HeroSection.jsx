@@ -1,16 +1,9 @@
 import React from 'react';
 import { useVerticalStore } from '../store/useVerticalStore';
-import { ArrowRight, Search, ShieldCheck, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Search, ShieldCheck, HeartPulse, Sparkles, CheckCircle2, PhoneCall } from 'lucide-react';
 
 export function HeroSection({ onOpenBooking }) {
   const setActivePage = useVerticalStore((state) => state.setActivePage);
-  const hospitalTelemetry = useVerticalStore(
-    (state) => state.hospitalCustomizer.telemetryMessage
-  );
-  const currentMode = useVerticalStore(
-    (state) => state.hospitalCustomizer.explorerMode || 'heart'
-  );
-  const updateHospital = useVerticalStore((state) => state.updateHospitalCustomizer);
 
   return (
     <div className="space-y-6">
@@ -51,75 +44,31 @@ export function HeroSection({ onOpenBooking }) {
         </button>
       </div>
 
-      {/* 3D Clinical Anatomy & Digital Twin Live Console */}
-      <div className="p-4 rounded-2xl bg-white border border-emerald-200/90 shadow-md max-w-xl">
-        <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base flex-shrink-0">
-            {currentMode === 'heart' ? '❤️' : currentMode === 'brain' ? '🧠' : '🧍'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
-                  AuraCare 3D Digital Twin • Live Clinical Explorer
-                </span>
+      {/* Rapid Clinical Access & Emergency Hotline Card */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/80 via-white to-slate-50 border border-emerald-200/80 shadow-md max-w-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+              🏥
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <span>Level-1 Trauma & Emergency Command</span>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </div>
-            </div>
-            <p className="text-xs text-slate-800 font-medium mt-1 leading-relaxed">
-              {hospitalTelemetry ||
-                "❤️ Cardiology Suite: Normal Sinus Rhythm (72 BPM) • 120/80 mmHg • SpO2 99%"}
-            </p>
-            {/* Quick Interactive Organ Triggers */}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() =>
-                  updateHospital({
-                    explorerMode: 'heart',
-                    bpm: 72,
-                    telemetryMessage: "❤️ Cardiology Suite: Real-time 3D Beating Heart • 72 BPM • Aorta & Coronary Output Active",
-                  })
-                }
-                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all cursor-pointer ${
-                  currentMode === 'heart'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-                }`}
-              >
-                ❤️ Inspect Heart
-              </button>
-              <button
-                onClick={() =>
-                  updateHospital({
-                    explorerMode: 'brain',
-                    telemetryMessage: "🧠 Neurological Institute: 3D Cerebral Cortex & Synaptic Network • Stroke Unit Active",
-                  })
-                }
-                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all cursor-pointer ${
-                  currentMode === 'brain'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-                }`}
-              >
-                🧠 Neural Scan
-              </button>
-              <button
-                onClick={() =>
-                  updateHospital({
-                    explorerMode: 'body',
-                    telemetryMessage: "🧍 Digital Twin: Holographic Laser Diagnostic Scanner • All Organ Systems Normal",
-                  })
-                }
-                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all cursor-pointer ${
-                  currentMode === 'body'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-                }`}
-              >
-                🧍 Body Scanner
-              </button>
+              <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                24/7 Rapid Ambulance & Cardiac Triage Protocol
+              </div>
             </div>
           </div>
+
+          <a
+            href="tel:8072212411"
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20 whitespace-nowrap"
+          >
+            <PhoneCall className="w-3.5 h-3.5" />
+            <span>8072212411</span>
+          </a>
         </div>
       </div>
 

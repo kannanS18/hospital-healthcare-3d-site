@@ -1,6 +1,6 @@
 import React from 'react';
 import { HeroSection } from '../sections/HeroSection';
-import { SceneContainer } from '../3d/SceneContainer';
+import { InteractiveClinicalHub } from '../components/InteractiveClinicalHub';
 import { useVerticalStore } from '../store/useVerticalStore';
 import { hospitalData } from '../data/hospitalData';
 import {
@@ -22,18 +22,16 @@ import {
 
 export function HomePage({ onOpenBooking }) {
   const setActivePage = useVerticalStore((state) => state.setActivePage);
-  const updateHospital = useVerticalStore((state) => state.updateHospitalCustomizer);
 
   return (
     <div className="space-y-16 sm:space-y-24">
       {/* =========================================================================
-          HERO & 3D DOCTOR MASCOT BANNER
+          HERO & INTERACTIVE CLINICAL COMMAND CENTER
           ========================================================================= */}
       <section className="relative pt-6">
-        {/* Hero Copy (Left) and 3D Viewport with Doctor Model (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Left: Headline, Badge, Quick Actions */}
+          {/* Left: Headline, Accreditations & Quick Actions */}
           <div className="lg:col-span-6 z-20">
             <HeroSection
               onOpenBooking={onOpenBooking}
@@ -44,52 +42,9 @@ export function HomePage({ onOpenBooking }) {
             />
           </div>
 
-          {/* Right: 3D Doctor Mascot Stage */}
-          <div className="lg:col-span-6 relative">
-            <div className="relative rounded-3xl bg-gradient-to-b from-emerald-50/40 via-white to-emerald-50/20 border border-emerald-100 shadow-xl overflow-hidden p-2 sm:p-4">
-              
-              {/* Doctor Status Tag */}
-              <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-emerald-200 shadow-sm text-xs font-semibold text-emerald-800">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                <span>Dr. Maya Thorne, MD • 3D Mascot</span>
-              </div>
-
-              {/* Quick Mascot Triggers Toolbar */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5">
-                <button
-                  onClick={() =>
-                    updateHospital({
-                      triggerWalkIn: true,
-                      speechMessage: "🚶‍♀️ Dr. Maya walking up to welcome you to AuraCare!",
-                    })
-                  }
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white/95 text-emerald-800 border border-emerald-200 shadow-sm hover:bg-emerald-50 transition-colors"
-                >
-                  🚶‍♀️ Walk Up
-                </button>
-                <button
-                  onClick={() =>
-                    updateHospital({
-                      isWaving: true,
-                      speechMessage: "👋 Welcome to AuraCare! How can our senior clinical specialists assist you today?",
-                    })
-                  }
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white/95 text-emerald-800 border border-emerald-200 shadow-sm hover:bg-emerald-50 transition-colors"
-                >
-                  👋 Wave
-                </button>
-              </div>
-
-              {/* 3D Scene Viewport */}
-              <div className="h-[480px] sm:h-[540px] w-full">
-                <SceneContainer />
-              </div>
-
-              {/* Mascot Hint Footer */}
-              <div className="text-center py-2 text-xs font-medium text-slate-500 border-t border-emerald-50 flex items-center justify-center gap-2">
-                <span>✨ <strong>Interactive 3D:</strong> Move cursor to guide doctor's gaze • Click on doctor to interact!</span>
-              </div>
-            </div>
+          {/* Right: Interactive Clinical Hub & Triage Command Station */}
+          <div className="lg:col-span-6 relative z-10">
+            <InteractiveClinicalHub onOpenBooking={onOpenBooking} />
           </div>
 
         </div>
