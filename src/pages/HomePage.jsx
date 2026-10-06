@@ -156,17 +156,17 @@ export function HomePage({ onOpenBooking }) {
           </button>
 
           <button
-            onClick={() => setActivePage('health-tools')}
+            onClick={() => setActivePage('contact')}
             className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all text-left group"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-              <Activity className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+              <ShieldAlert className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-              Health Tools & BMI
+            <h3 className="font-bold text-slate-900 group-hover:text-rose-700 transition-colors">
+              Emergency & Trauma
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Interactive clinical BMI calculator & symptom checker.
+              24/7 Level-1 trauma response. Direct helpline: 8072212411.
             </p>
           </button>
         </div>
