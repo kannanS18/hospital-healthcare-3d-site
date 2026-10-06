@@ -337,24 +337,26 @@ function RealDocModel({ config, updateConfig }) {
       bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY, 5, delta);
       bones.neck.rotation.y = THREE.MathUtils.damp(bones.neck.rotation.y, targetLookX * 0.5, 5, delta);
 
-      // 4. Natural Waving Motion
+      // 4. Natural Waving Motion (Friendly greeting wave, hand in air beside head)
       const isWavingActive = isGreeting || config.isWaving;
       if (isWavingActive) {
-        // Raise right arm up into greeting stance
-        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, -0.45, 6, delta);
-        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.15, 6, delta);
-        bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, -0.2, 6, delta);
+        // Upper arm: positioned comfortably forward and down (elbow rests near side/chest level)
+        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 0.10, 6, delta);
+        bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, 0.45, 6, delta);
+        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.20, 6, delta);
 
-        // Bend forearm upwards and wave
-        const waveOsc = Math.sin(time * 9);
-        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, -1.8 + waveOsc * 0.15, 6, delta);
-        bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0.1, 6, delta);
+        // Forearm: raised upright into the air beside head (palm facing forward, hand beside head)
+        const waveOsc = Math.sin(time * 8);
+        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, -1.35 + waveOsc * 0.22, 7, delta);
+        bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0.15, 6, delta);
 
-        // Wave hand back and forth naturally
-        bones.rHand.rotation.z = waveOsc * 0.38;
+        // Hand: waves side-to-side in the air warmly
+        bones.rHand.rotation.z = waveOsc * 0.35;
+        bones.rHand.rotation.y = Math.sin(time * 8) * 0.15;
 
-        // Friendly head tilt
-        bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, Math.sin(time * 4.5) * 0.08, 5, delta);
+        // Friendly welcoming head nod & slight tilt
+        bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, -0.06, 5, delta);
+        bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY + Math.sin(time * 4) * 0.04, 5, delta);
       } else {
         // Return right arm smoothly to natural resting standing posture
         bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 1.18, 5, delta);
@@ -363,6 +365,7 @@ function RealDocModel({ config, updateConfig }) {
         bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, 0.15, 5, delta);
         bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0, 5, delta);
         bones.rHand.rotation.z = THREE.MathUtils.damp(bones.rHand.rotation.z, 0, 5, delta);
+        bones.rHand.rotation.y = THREE.MathUtils.damp(bones.rHand.rotation.y, 0, 5, delta);
         bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, 0, 5, delta);
       }
     }
