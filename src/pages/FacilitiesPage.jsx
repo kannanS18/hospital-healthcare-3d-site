@@ -18,10 +18,10 @@ const FACILITIES = [
     specs: ['Acoustic noise reduction to ambient level', 'Diffusion tensor tractography', 'Ultrafast scan sequences (under 12 min)', 'Wide-bore comfort design'],
   },
   {
-    title: 'AI Tele-ICU & Critical Care Bio-Telemetry',
+    title: 'Advanced Bio-Telemetry & Continuous ICU Monitoring',
     category: 'INTENSIVE CARE INFRASTRUCTURE',
     image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
-    desc: 'Every critical care bed is linked to continuous physiological AI telemetry that predicts early organ distress and hemodynamic instability up to 6 hours before clinical symptoms appear.',
+    desc: 'Every critical care bed is linked to continuous physiological bio-telemetry monitored 24/7 by board-certified intensivists to detect organ distress and hemodynamic instability immediately.',
     specs: ['24/7 dual-board intensivist surveillance', 'Positive-pressure HEPA isolation', 'Automated hemodynamic stabilization alarms', 'Zero-infection central line protocols'],
   },
   {

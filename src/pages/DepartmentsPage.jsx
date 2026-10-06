@@ -89,7 +89,7 @@ const DEPARTMENTS = [
     name: 'Advanced Diagnostic Radiology & 3T MRI',
     icon: Stethoscope,
     tag: 'IMAGING & RADIOLOGY',
-    desc: 'Ultra-high field 3.0-Tesla silent MRI, dual-energy spectral CT, automated 3D breast ultrasound, and AI-assisted radiomic anomaly detection.',
+    desc: 'Ultra-high field 3.0-Tesla silent MRI, dual-energy spectral CT, automated 3D breast ultrasound, and high-resolution digital radiomic imaging.',
     procedures: ['3-Tesla Neuro & Cardiac MRI', 'Low-Dose Spectral CT Scans', 'PET-CT Oncology Staging', 'FibroScan Liver Elastography'],
     chair: 'Dr. Evelyn Montgomery, MD',
     stats: 'Same-Day Digital Results',

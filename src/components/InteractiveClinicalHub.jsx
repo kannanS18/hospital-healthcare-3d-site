@@ -178,11 +178,11 @@ export function InteractiveClinicalHub({ onOpenBooking }) {
                 <h3 className="text-base font-extrabold text-slate-950 flex items-center gap-2">
                   <span>Interactive Clinical Symptom Triage</span>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                    AI-Assisted
+                    Physician-Verified Protocol
                   </span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Select body system and tap symptoms for an instant clinical triage assessment.
+                  Standardized JCI clinical triage guidelines verified by board-certified specialists.
                 </p>
               </div>
             </div>

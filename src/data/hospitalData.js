@@ -131,10 +131,10 @@ export const hospitalData = {
       serviceOptions: ['Cardiovascular Institute', 'Neurology & Brain Center', 'Oncology & Immunotherapy', 'da Vinci Robotic Surgery', 'Executive Wellness Check'],
     },
     workshopInfo: {
-      address: 'MediCare+ Pavilion, 450 Medical Sciences Way, Boston, MA',
-      phone: '24/7 Clinical Desk: +1 (800) 452-9800',
+      address: 'AuraCare Pavilion, 450 Medical Sciences Way',
+      phone: '24/7 Clinical Desk: 8072212411',
       hours: 'Emergency & Trauma: Open 24/7/365 • Outpatient Clinics: Mon-Sat 07:00 - 20:00',
-      email: 'admissions@medicareplus-health.org'
+      email: 'admissions@auracare-health.org'
     }
   }
 };
