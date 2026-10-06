@@ -25,8 +25,8 @@ function CameraRig() {
 
   useEffect(() => {
     if (!controlsRef.current) return;
-    controlsRef.current.object.position.set(0, 0.45, 3.4);
-    controlsRef.current.target.set(0, 0.35, 0);
+    controlsRef.current.object.position.set(0, 0.20, 3.1);
+    controlsRef.current.target.set(0, 0.05, 0);
   }, []);
 
   return (
@@ -34,8 +34,8 @@ function CameraRig() {
       ref={controlsRef}
       enablePan={false}
       enableZoom={true}
-      minDistance={1.8}
-      maxDistance={6.0}
+      minDistance={1.6}
+      maxDistance={5.5}
       maxPolarAngle={Math.PI / 2 - 0.05} // Keep above floor
       dampingFactor={0.05}
     />
@@ -48,7 +48,7 @@ export function SceneContainer() {
       <CanvasErrorBoundary>
         <Canvas
           shadows
-          camera={{ position: [0, 0.45, 3.4], fov: 40 }}
+          camera={{ position: [0, 0.20, 3.1], fov: 38 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         >
         <Suspense fallback={<Loader />}>
