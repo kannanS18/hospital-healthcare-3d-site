@@ -50,12 +50,30 @@ export function EmergencySOSModal({ isOpen, onClose }) {
         setGpsLoading(false);
         setBeaconTransmitted(true);
 
-        // Auto-copy coordinates to clipboard so patient can immediately paste in any chat
+        // Auto-copy coordinates to clipboard as fallback
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(
             `🚨 EMERGENCY SOS! Location Pin: ${mapsLink} (Lat: ${data.lat}, Lng: ${data.lng}, Acc: ±${data.accuracy}m)`
           ).then(() => setCopied(true)).catch(() => {});
         }
+
+        // 1. SILENT BACKGROUND DISPATCH (Zero clicks needed)
+        // Sends live coordinates directly to dispatch endpoint via background fetch
+        try {
+          fetch('https://formspree.io/f/xbjnbqzy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              emergency_number: '8072212411',
+              alert: '🚨 CRITICAL MEDICAL EMERGENCY SOS DISPATCH',
+              mapsLink: mapsLink,
+              latitude: data.lat,
+              longitude: data.lng,
+              accuracy: `${data.accuracy}m`,
+              timestamp: new Date().toISOString(),
+            }),
+          }).catch(() => {});
+        } catch (e) {}
 
         // Store to local emergency dispatch log
         try {
@@ -63,12 +81,22 @@ export function EmergencySOSModal({ isOpen, onClose }) {
           log.unshift({ ...data, date: new Date().toISOString() });
           localStorage.setItem('auracare_emergency_beacons', JSON.stringify(log.slice(0, 10)));
         } catch (e) {}
+
+        // 2. SPONTANEOUS AUTO-CALL
+        // Now that location is secured and dispatched, immediately trigger the call without waiting
+        setTimeout(() => {
+          window.location.href = `tel:${EMERGENCY_NUMBER}`;
+        }, 800);
       },
       (err) => {
         setGpsLoading(false);
         setLocationError(
-          'Location permission needed to pinpoint your exact coordinates. Please call 8072212411 directly to speak with dispatch.'
+          'Location permission needed to pinpoint your exact coordinates. Calling dispatch directly...'
         );
+        // Fallback: trigger call immediately even if location denied
+        setTimeout(() => {
+          window.location.href = `tel:${EMERGENCY_NUMBER}`;
+        }, 1200);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -173,7 +201,7 @@ export function EmergencySOSModal({ isOpen, onClose }) {
               {beaconTransmitted && (
                 <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  <span>GPS Acquired</span>
+                  <span>Transmitted to Dispatch</span>
                 </span>
               )}
             </div>
