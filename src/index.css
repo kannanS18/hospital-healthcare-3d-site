@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default: Car Modification theme (AutoForge) */
+  --color-bg: #0B0B0C;
+  --color-surface: #141416;
+  --color-surface-hover: #1E2024;
+  --color-primary: #FF4D00;
+  --color-primary-hover: #FF6A26;
+  --color-secondary: #D4AF37;
+  --color-accent: #FF3300;
+  --color-text: #FFFFFF;
+  --color-text-muted: #8E929E;
+  --color-border: rgba(255, 77, 0, 0.2);
+  --color-nav-bg: rgba(11, 11, 12, 0.85);
+  --glow-color: rgba(255, 77, 0, 0.35);
+  --shadow-color: rgba(0, 0, 0, 0.7);
+
+  --font-heading: 'Rajdhani', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: background-color 0.7s cubic-bezier(0.16, 1, 0.3, 1), color 0.7s ease;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: var(--color-nav-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+}
+
+.theme-gradient-text {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
