@@ -12,14 +12,14 @@ export const useVerticalStore = create((set, get) => ({
     }
   },
 
-  // 3D Doctor Mascot Controls & State (For user's docmodel.glb)
+  // 3D Clinical Anatomy & Digital Twin Controls
   hospitalCustomizer: {
-    mascotFollow: true,
-    isWaving: false,
-    triggerWalkIn: false,
-    vitalsActive: false,
-    autoRotate: false,
-    speechMessage: "👋 Welcome to AuraCare! Move your cursor around — my gaze follows your pointer in real-time.",
+    explorerMode: 'heart', // 'heart' | 'brain' | 'body'
+    bpm: 72,
+    xrayMode: false,
+    autoRotate: true,
+    activeHotspot: null,
+    telemetryMessage: "❤️ Cardiology Suite: Normal Sinus Rhythm (72 BPM) • 120/80 mmHg • SpO2 99%",
   },
 
   updateHospitalCustomizer: (partial) =>

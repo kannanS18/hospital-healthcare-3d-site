@@ -1,457 +1,599 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF, Float, Html } from '@react-three/drei';
+import { Float, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useVerticalStore } from '../../store/useVerticalStore';
 
 /**
- * 3D Doctor Model loaded from /models/docmodel.glb
- * With Walk-up entrance, Cursor Tracking (Mascot Gaze), Breathing, and Interactivity
+ * 1. 3D Anatomical Beating Heart (Cardiovascular Suite)
+ * With Dual-Cycle "Lub-Dub" Ventricular Pulse, Aorta Arch, Coronary Vessels & Flowing Blood Particles
  */
-/**
- * Helper to build custom procedural skeleton and bind docmodel.glb mesh into a SkinnedMesh
- */
-function createRiggedDoctor(scene) {
-  let sourceMesh = null;
-  scene.traverse((child) => {
-    if (child.isMesh && !sourceMesh) {
-      sourceMesh = child;
-    }
-  });
+function BeatingHeart3D({ bpm = 72, xray = false, onSelectHotspot }) {
+  const heartGroupRef = useRef();
+  const bloodParticlesRef = useRef();
+  const [hoveredSpot, setHoveredSpot] = useState(null);
 
-  if (!sourceMesh) return null;
+  // Anatomical Heart Geometry
+  const heartGeo = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0.45);
+    shape.bezierCurveTo(0, 0.75, -0.4, 0.95, -0.75, 0.95);
+    shape.bezierCurveTo(-1.15, 0.95, -1.35, 0.55, -1.35, 0.2);
+    shape.bezierCurveTo(-1.35, -0.35, -0.85, -0.75, 0, -1.45);
+    shape.bezierCurveTo(0.85, -0.75, 1.35, -0.35, 1.35, 0.2);
+    shape.bezierCurveTo(1.35, 0.55, 1.15, 0.95, 0.75, 0.95);
+    shape.bezierCurveTo(0.4, 0.95, 0, 0.75, 0, 0.45);
 
-  // Build Bone Hierarchy
-  const root = new THREE.Bone(); root.name = 'root';
-  const hips = new THREE.Bone(); hips.name = 'hips'; root.add(hips);
-  const spine = new THREE.Bone(); spine.name = 'spine'; spine.position.set(0, 0.28, 0); hips.add(spine);
-  const chest = new THREE.Bone(); chest.name = 'chest'; chest.position.set(0, 0.22, 0); spine.add(chest);
-  const neck = new THREE.Bone(); neck.name = 'neck'; neck.position.set(0, 0.18, 0); chest.add(neck);
-  const head = new THREE.Bone(); head.name = 'head'; head.position.set(0, 0.09, 0); neck.add(head);
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.65,
+      bevelEnabled: true,
+      bevelSegments: 8,
+      steps: 2,
+      bevelSize: 0.22,
+      bevelThickness: 0.22,
+    });
+    geo.center();
+    return geo;
+  }, []);
 
-  // Left Arm (+X, viewer's right)
-  const lUpperArm = new THREE.Bone(); lUpperArm.name = 'lUpperArm'; lUpperArm.position.set(0.22, 0.04, 0); chest.add(lUpperArm);
-  const lLowerArm = new THREE.Bone(); lLowerArm.name = 'lLowerArm'; lLowerArm.position.set(0.22, -0.01, 0); lUpperArm.add(lLowerArm);
-  const lHand = new THREE.Bone(); lHand.name = 'lHand'; lHand.position.set(0.20, 0, 0); lLowerArm.add(lHand);
+  // Arch of Aorta Geometry
+  const aortaGeo = useMemo(() => {
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.05, 0.4, 0.05),
+      new THREE.Vector3(0.12, 0.88, 0.02),
+      new THREE.Vector3(-0.12, 1.18, -0.08),
+      new THREE.Vector3(-0.38, 1.08, -0.15),
+      new THREE.Vector3(-0.46, 0.55, -0.18),
+    ]);
+    return new THREE.TubeGeometry(curve, 28, 0.14, 16, false);
+  }, []);
 
-  // Right Arm (-X, viewer's left)
-  const rUpperArm = new THREE.Bone(); rUpperArm.name = 'rUpperArm'; rUpperArm.position.set(-0.22, 0.04, 0); chest.add(rUpperArm);
-  const rLowerArm = new THREE.Bone(); rLowerArm.name = 'rLowerArm'; rLowerArm.position.set(-0.22, -0.01, 0); rUpperArm.add(rLowerArm);
-  const rHand = new THREE.Bone(); rHand.name = 'rHand'; rHand.position.set(-0.20, 0, 0); rLowerArm.add(rHand);
+  // Pulmonary Trunk Vessel
+  const pulmonaryGeo = useMemo(() => {
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.15, 0.35, 0.18),
+      new THREE.Vector3(-0.25, 0.72, 0.12),
+      new THREE.Vector3(0.2, 0.82, -0.05),
+    ]);
+    return new THREE.TubeGeometry(curve, 20, 0.11, 14, false);
+  }, []);
 
-  // Left Leg
-  const lThigh = new THREE.Bone(); lThigh.name = 'lThigh'; lThigh.position.set(0.11, -0.15, 0); hips.add(lThigh);
-  const lCalf = new THREE.Bone(); lCalf.name = 'lCalf'; lCalf.position.set(0, -0.37, 0); lThigh.add(lCalf);
-  const lFoot = new THREE.Bone(); lFoot.name = 'lFoot'; lFoot.position.set(0, -0.36, 0.04); lCalf.add(lFoot);
-
-  // Right Leg
-  const rThigh = new THREE.Bone(); rThigh.name = 'rThigh'; rThigh.position.set(-0.11, -0.15, 0); hips.add(rThigh);
-  const rCalf = new THREE.Bone(); rCalf.name = 'rCalf'; rCalf.position.set(0, -0.37, 0); rThigh.add(rCalf);
-  const rFoot = new THREE.Bone(); rFoot.name = 'rFoot'; rFoot.position.set(0, -0.36, 0.04); rCalf.add(rFoot);
-
-  const bones = [
-    root, hips, spine, chest, neck, head,
-    lUpperArm, lLowerArm, lHand,
-    rUpperArm, rLowerArm, rHand,
-    lThigh, lCalf, lFoot,
-    rThigh, rCalf, rFoot
-  ];
-
-  root.updateWorldMatrix(true, true);
-
-  // Clone geometry and assign smooth skinning weights
-  const srcGeo = sourceMesh.geometry;
-  const positions = srcGeo.attributes.position.array;
-  const vertCount = srcGeo.attributes.position.count;
-
-  function smoothstep(min, max, value) {
-    const x = Math.max(0, Math.min(1, (value - min) / (max - min)));
-    return x * x * (3 - 2 * x);
-  }
-
-  const skinIndices = [];
-  const skinWeights = [];
-
-  for (let i = 0; i < vertCount; i++) {
-    const x = positions[i * 3];
-    const y = positions[i * 3 + 1];
-
-    let b0 = 1, w0 = 1.0;
-    let b1 = 0, w1 = 0.0;
-
-    if (x > 0.18 && y > 0.28 && y < 0.72) {
-      // Left arm
-      if (x > 0.62) {
-        b0 = 8; w0 = 1.0;
-      } else if (x > 0.44) {
-        const t = smoothstep(0.44, 0.62, x);
-        b0 = 7; w0 = 1.0 - t;
-        b1 = 8; w1 = t;
-      } else if (x > 0.23) {
-        const t = smoothstep(0.23, 0.44, x);
-        b0 = 6; w0 = 1.0 - t;
-        b1 = 7; w1 = t;
-      } else {
-        const t = smoothstep(0.18, 0.23, x);
-        b0 = 3; w0 = 1.0 - t;
-        b1 = 6; w1 = t;
-      }
-    } else if (x < -0.18 && y > 0.28 && y < 0.72) {
-      // Right arm
-      const ax = -x;
-      if (ax > 0.62) {
-        b0 = 11; w0 = 1.0;
-      } else if (ax > 0.44) {
-        const t = smoothstep(0.44, 0.62, ax);
-        b0 = 10; w0 = 1.0 - t;
-        b1 = 11; w1 = t;
-      } else if (ax > 0.23) {
-        const t = smoothstep(0.23, 0.44, ax);
-        b0 = 9; w0 = 1.0 - t;
-        b1 = 10; w1 = t;
-      } else {
-        const t = smoothstep(0.18, 0.23, ax);
-        b0 = 3; w0 = 1.0 - t;
-        b1 = 9; w1 = t;
-      }
-    } else if (y >= 0.74) {
-      b0 = 5; w0 = 1.0;
-    } else if (y >= 0.65) {
-      const t = smoothstep(0.65, 0.74, y);
-      b0 = 4; w0 = 1.0 - t;
-      b1 = 5; w1 = t;
-    } else if (y >= 0.35) {
-      const t = smoothstep(0.35, 0.65, y);
-      b0 = 2; w0 = 1.0 - t;
-      b1 = 3; w1 = t;
-    } else if (y >= 0.05) {
-      const t = smoothstep(0.05, 0.35, y);
-      b0 = 1; w0 = 1.0 - t;
-      b1 = 2; w1 = t;
-    } else {
-      const isLeft = x >= 0;
-      if (y < -0.85) {
-        b0 = isLeft ? 14 : 17; w0 = 1.0;
-      } else if (y < -0.52) {
-        const t = smoothstep(-0.85, -0.52, y);
-        b0 = isLeft ? 14 : 17; w0 = 1.0 - t;
-        b1 = isLeft ? 13 : 16; w1 = t;
-      } else {
-        const t = smoothstep(-0.52, 0.05, y);
-        b0 = isLeft ? 13 : 16; w0 = 1.0 - t;
-        b1 = isLeft ? 12 : 15; w1 = t;
-      }
-    }
-
-    const sum = w0 + w1;
-    skinIndices.push(b0, b1, 0, 0);
-    skinWeights.push(w0 / sum, w1 / sum, 0, 0);
-  }
-
-  const geo = srcGeo.clone();
-  geo.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(skinIndices, 4));
-  geo.setAttribute('skinWeight', new THREE.Float32BufferAttribute(skinWeights, 4));
-
-  const skeleton = new THREE.Skeleton(bones);
-  const mat = sourceMesh.material.clone();
-  mat.roughness = Math.min(mat.roughness || 0.5, 0.6);
-  mat.metalness = Math.min(mat.metalness || 0.1, 0.15);
-
-  const skinnedMesh = new THREE.SkinnedMesh(geo, mat);
-  skinnedMesh.castShadow = true;
-  skinnedMesh.receiveShadow = true;
-  skinnedMesh.add(root);
-  skinnedMesh.bind(skeleton);
-
-  // Set initial natural resting standing posture
-  lUpperArm.rotation.set(0.08, 0, -1.18);
-  lLowerArm.rotation.set(0, 0, -0.15);
-  rUpperArm.rotation.set(0.08, 0, 1.18);
-  rLowerArm.rotation.set(0, 0, 0.15);
-
-  root.updateWorldMatrix(true, true);
-
-  return {
-    skinnedMesh,
-    bones: {
-      root, hips, spine, chest, neck, head,
-      lUpperArm, lLowerArm, lHand,
-      rUpperArm, rLowerArm, rHand,
-      lThigh, lCalf, lFoot,
-      rThigh, rCalf, rFoot
-    }
-  };
-}
-
-/**
- * 3D Doctor Mascot loaded from /models/docmodel.glb
- * With Procedural Skeleton Rig, Standing Posture, Walk Entrance, Interactivity, and Waving Animation
- */
-function RealDocModel({ config, updateConfig }) {
-  const groupRef = useRef();
-  const rippleRef = useRef();
-
-  // Load user's provided 3D doctor model
-  const { scene } = useGLTF('./models/docmodel.glb');
-  const rig = useMemo(() => createRiggedDoctor(scene), [scene]);
-
-  // Walk-up entrance animation state
-  const [isWalkingIn, setIsWalkingIn] = useState(true);
-  const [walkTimer, setWalkTimer] = useState(0);
-  const [isGreeting, setIsGreeting] = useState(false);
-
-  // Trigger Walk-Up Entrance Replay
-  useEffect(() => {
-    if (config.triggerWalkIn) {
-      setIsWalkingIn(true);
-      setWalkTimer(0);
-      updateConfig({ triggerWalkIn: false });
-    }
-  }, [config.triggerWalkIn, updateConfig]);
-
-  // Handle direct click on doctor model
-  const handleDoctorClick = (e) => {
-    e.stopPropagation();
-    setIsGreeting(true);
-
-    const dialogs = [
-      "👋 Hello! Dr. Maya at your service. Our clinical teams are available 24/7!",
-      "🩺 Telemetry check: Blood Pressure 120/80 mmHg, Pulse 72 BPM, SpO2 99%. All vitals optimal!",
-      "✨ Preventive health tip: 20 minutes of daily physical activity reduces cardiovascular risk by 30%!",
-      "🏥 Welcome to AuraCare! How can our specialists assist your recovery today?",
+  // Branching Coronary Arteries
+  const coronaryArteries = useMemo(() => {
+    const curves = [
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.02, 1.15, -0.05),
+        new THREE.Vector3(0.08, 1.45, -0.02),
+      ]),
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.15, 1.17, -0.08),
+        new THREE.Vector3(-0.12, 1.48, -0.06),
+      ]),
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.28, 1.12, -0.12),
+        new THREE.Vector3(-0.32, 1.44, -0.1),
+      ]),
     ];
-    const msg = dialogs[Math.floor(Math.random() * dialogs.length)];
-    updateConfig({ speechMessage: msg, isWaving: true });
+    return curves.map((c) => new THREE.TubeGeometry(c, 12, 0.045, 10, false));
+  }, []);
 
-    setTimeout(() => {
-      setIsGreeting(false);
-      updateConfig({ isWaving: false });
-    }, 3400);
-  };
+  // Flowing Blood Corpuscle Particles
+  const bloodParticles = useMemo(() => {
+    const count = 48;
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      const rad = 0.55 + Math.random() * 0.45;
+      pos[i * 3] = Math.sin(phi) * Math.cos(theta) * rad * 0.85;
+      pos[i * 3 + 1] = Math.cos(phi) * rad * 0.9;
+      pos[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * rad * 0.7;
+    }
+    return pos;
+  }, []);
 
-  // Animation Loop with Procedural Skeletal Animation
-  useFrame((state, delta) => {
-    if (!rig) return;
+  // Materials
+  const muscleMat = useMemo(() => {
+    if (xray) {
+      return new THREE.MeshPhysicalMaterial({
+        color: '#059669',
+        roughness: 0.15,
+        transmission: 0.75,
+        thickness: 1.2,
+        emissive: '#10b981',
+        emissiveIntensity: 0.45,
+        transparent: true,
+        opacity: 0.85,
+      });
+    }
+    return new THREE.MeshPhysicalMaterial({
+      color: '#b91c1c',
+      roughness: 0.28,
+      clearcoat: 0.85,
+      clearcoatRoughness: 0.15,
+      transmission: 0.15,
+      thickness: 0.9,
+      emissive: '#991b1b',
+      emissiveIntensity: 0.22,
+    });
+  }, [xray]);
+
+  const vesselMat = useMemo(() => {
+    return new THREE.MeshPhysicalMaterial({
+      color: xray ? '#34d399' : '#dc2626',
+      roughness: 0.2,
+      clearcoat: 0.9,
+      emissive: xray ? '#10b981' : '#b91c1c',
+      emissiveIntensity: 0.25,
+    });
+  }, [xray]);
+
+  const blueVesselMat = useMemo(() => {
+    return new THREE.MeshPhysicalMaterial({
+      color: xray ? '#38bdf8' : '#2563eb',
+      roughness: 0.2,
+      clearcoat: 0.9,
+      emissive: xray ? '#0ea5e9' : '#1d4ed8',
+      emissiveIntensity: 0.25,
+    });
+  }, [xray]);
+
+  // Heartbeat Contraction & Particle Orbit Loop
+  useFrame((state) => {
     const time = state.clock.elapsedTime;
-    const { bones } = rig;
+    const bps = (bpm || 72) / 60;
+    const cycle = (time * bps) % 1;
 
-    // 1. Walk-Up Entrance Sequence
-    if (isWalkingIn) {
-      const nextTime = walkTimer + delta;
-      setWalkTimer(nextTime);
-      const walkDuration = 2.4;
-      const progress = Math.min(1, nextTime / walkDuration);
-      const ease = 1 - Math.pow(1 - progress, 3);
+    // Dual-Ventricular Contraction (Lub-Dub rhythm)
+    let pulse = 1.0;
+    if (cycle < 0.14) {
+      pulse = 1.0 + Math.sin((cycle / 0.14) * Math.PI) * 0.07; // Atrial pump
+    } else if (cycle > 0.18 && cycle < 0.38) {
+      pulse = 1.0 + Math.sin(((cycle - 0.18) / 0.2) * Math.PI) * 0.12; // Ventricular surge
+    }
 
-      const startZ = -1.6;
-      const targetZ = 0.0;
-      const currentZ = startZ + (targetZ - startZ) * ease;
+    if (heartGroupRef.current) {
+      heartGroupRef.current.scale.set(pulse * 0.96, pulse * 0.96, pulse * 0.96);
+      heartGroupRef.current.rotation.y = Math.sin(time * 0.4) * 0.18;
+    }
 
-      const stepFreq = 10;
-      const stepBob = Math.abs(Math.sin(nextTime * stepFreq)) * 0.035 * (1 - progress);
-      const legSwing = Math.sin(nextTime * stepFreq) * 0.32 * (1 - progress);
-
-      if (groupRef.current) {
-        groupRef.current.position.z = currentZ;
-        groupRef.current.position.y = -0.95 + stepBob;
-      }
-
-      // Natural leg strides
-      bones.lThigh.rotation.x = legSwing;
-      bones.rThigh.rotation.x = -legSwing;
-      bones.lCalf.rotation.x = Math.max(0, -legSwing) * 0.35;
-      bones.rCalf.rotation.x = Math.max(0, legSwing) * 0.35;
-
-      // Arm swing during walking
-      bones.lUpperArm.rotation.set(0.10 - legSwing * 0.25, 0, -1.12);
-      bones.rUpperArm.rotation.set(0.10 + legSwing * 0.25, 0, 1.12);
-      bones.lLowerArm.rotation.set(0, 0, -0.2);
-      bones.rLowerArm.rotation.set(0, 0, 0.2);
-
-      if (rippleRef.current) {
-        rippleRef.current.scale.set(1 + progress * 0.8, 1 + progress * 0.8, 1);
-        rippleRef.current.material.opacity = Math.max(0, 0.35 - progress * 0.3);
-      }
-
-      if (progress >= 1) {
-        setIsWalkingIn(false);
-        bones.lThigh.rotation.set(0, 0, -0.01);
-        bones.rThigh.rotation.set(0, 0, 0.01);
-        bones.lCalf.rotation.set(0, 0, 0);
-        bones.rCalf.rotation.set(0, 0, 0);
-      }
-    } else {
-      // 2. Idle Natural Stance & Breathing
-      if (groupRef.current) {
-        groupRef.current.position.y = -0.95;
-      }
-
-      // Calm, dignified breathing rhythm
-      const breath = Math.sin(time * 1.8) * 0.012;
-      bones.chest.rotation.x = breath;
-      bones.spine.position.y = 0.28 + breath * 0.08;
-
-      // Subtle human weight-shift sway
-      bones.hips.rotation.y = Math.sin(time * 0.7) * 0.015;
-      bones.hips.rotation.z = Math.cos(time * 0.7) * 0.008;
-
-      // Grounded resting legs
-      bones.lThigh.rotation.set(0, 0, -0.015);
-      bones.rThigh.rotation.set(0, 0, 0.015);
-      bones.lCalf.rotation.set(0, 0, 0);
-      bones.rCalf.rotation.set(0, 0, 0);
-
-      // Left arm rests gracefully with natural elbow contour
-      bones.lUpperArm.rotation.z = THREE.MathUtils.damp(bones.lUpperArm.rotation.z, -1.12, 5, delta);
-      bones.lUpperArm.rotation.x = THREE.MathUtils.damp(bones.lUpperArm.rotation.x, 0.12, 5, delta);
-      bones.lLowerArm.rotation.z = THREE.MathUtils.damp(bones.lLowerArm.rotation.z, -0.22, 5, delta);
-      bones.lHand.rotation.z = 0;
-
-      // 3. Head & Neck Gaze Tracking (attentive, calm eye contact)
-      const targetLookX = (config.mascotFollow !== false ? state.pointer.x : 0) * 0.32;
-      const targetLookY = (config.mascotFollow !== false ? -state.pointer.y : 0) * 0.16;
-      bones.head.rotation.y = THREE.MathUtils.damp(bones.head.rotation.y, targetLookX, 5, delta);
-      bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY, 5, delta);
-      bones.neck.rotation.y = THREE.MathUtils.damp(bones.neck.rotation.y, targetLookX * 0.45, 5, delta);
-
-      // 4. Professional Greeting Gesture (Welcoming, polite doctor greeting)
-      const isWavingActive = isGreeting || config.isWaving;
-      if (isWavingActive) {
-        // Upper arm: moves forward into an open welcoming posture
-        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 0.25, 6, delta);
-        bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, 0.45, 6, delta);
-        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.22, 6, delta);
-
-        // Forearm: raised in a polite, dignified wave beside the shoulder
-        const waveOsc = Math.sin(time * 7);
-        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, -1.25 + waveOsc * 0.18, 7, delta);
-        bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0.12, 6, delta);
-
-        // Hand: gentle welcoming hand motion
-        bones.rHand.rotation.z = waveOsc * 0.25;
-        bones.rHand.rotation.y = 0.2;
-
-        // Friendly reassuring head nod
-        bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, -0.04, 5, delta);
-        bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY + Math.sin(time * 3.5) * 0.03, 5, delta);
-      } else {
-        // Return right arm smoothly to professional standing rest pose
-        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 1.12, 5, delta);
-        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.12, 5, delta);
-        bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, 0.10, 5, delta);
-        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, 0.22, 5, delta);
-        bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0, 5, delta);
-        bones.rHand.rotation.z = THREE.MathUtils.damp(bones.rHand.rotation.z, 0, 5, delta);
-        bones.rHand.rotation.y = THREE.MathUtils.damp(bones.rHand.rotation.y, 0, 5, delta);
-        bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, 0, 5, delta);
-      }
+    if (bloodParticlesRef.current) {
+      bloodParticlesRef.current.rotation.y = time * 0.6;
+      bloodParticlesRef.current.rotation.x = Math.sin(time * 0.5) * 0.2;
     }
   });
 
   return (
-    <group position={[0, 0, 0]} onClick={handleDoctorClick}>
-      {/* Walking & Posing Master Group */}
-      <group ref={groupRef} position={[0, -0.95, 0]}>
-        {/* Feet touch podium surface (Y = -0.95), full body cleanly framed */}
-        <group position={[0, 0.952 * 0.92, 0]}>
-          {rig && <primitive object={rig.skinnedMesh} scale={0.92} />}
-        </group>
+    <group position={[0, 0.15, 0]}>
+      {/* Pulsing Anatomical Heart Body */}
+      <group ref={heartGroupRef}>
+        <mesh geometry={heartGeo} material={muscleMat} castShadow receiveShadow />
+        <mesh geometry={aortaGeo} material={vesselMat} />
+        <mesh geometry={pulmonaryGeo} material={blueVesselMat} />
+        {coronaryArteries.map((geo, idx) => (
+          <mesh key={idx} geometry={geo} material={vesselMat} />
+        ))}
       </group>
 
-      {/* ----------------- PROFESSIONAL CLINICAL HUD TELEMETRY CARDS ----------------- */}
-      {/* 1. Board Certified Physician Badge (Top Left) */}
-      <Float speed={1.5} rotationIntensity={0.06} floatIntensity={0.35}>
-        <Html position={[-1.15, 0.70, 0.2]} center distanceFactor={6}>
+      {/* Orbiting Blood Corpuscles */}
+      <points ref={bloodParticlesRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={bloodParticles.length / 3}
+            array={bloodParticles}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.065}
+          color={xray ? '#34d399' : '#ef4444'}
+          transparent
+          opacity={0.85}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      {/* Interactive 3D Hotspot Tags */}
+      {/* 1. Aorta Output Tag */}
+      <Html position={[-0.48, 1.25, 0]} center distanceFactor={5.5}>
+        <button
+          onClick={() => onSelectHotspot('aorta')}
+          onMouseEnter={() => setHoveredSpot('aorta')}
+          onMouseLeave={() => setHoveredSpot(null)}
+          className="group flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/95 border border-red-200 shadow-md hover:border-red-500 hover:scale-105 transition-all text-left cursor-pointer"
+        >
+          <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+          <span className="text-[10px] font-bold text-slate-800">
+            Aorta • 5.1 L/min
+          </span>
+        </button>
+      </Html>
+
+      {/* 2. Myocardial Ventricle Tag */}
+      <Html position={[0.75, -0.2, 0.45]} center distanceFactor={5.5}>
+        <button
+          onClick={() => onSelectHotspot('ventricle')}
+          onMouseEnter={() => setHoveredSpot('ventricle')}
+          onMouseLeave={() => setHoveredSpot(null)}
+          className="group flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/95 border border-emerald-200 shadow-md hover:border-emerald-500 hover:scale-105 transition-all text-left cursor-pointer"
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+          <span className="text-[10px] font-bold text-slate-800">
+            Ventricle • 64% EF
+          </span>
+        </button>
+      </Html>
+    </group>
+  );
+}
+
+/**
+ * 2. 3D Neural Brain & Synaptic Network (Neurology Institute)
+ * Dual-hemisphere cerebral cortex with bioluminescent gyri and firing electric synapses
+ */
+function NeuralBrain3D({ onSelectHotspot }) {
+  const brainRef = useRef();
+  const sparksRef = useRef();
+
+  // Dual Cerebral Hemispheres
+  const hemisphereGeoL = useMemo(() => new THREE.SphereGeometry(0.72, 32, 28), []);
+  const hemisphereGeoR = useMemo(() => new THREE.SphereGeometry(0.72, 32, 28), []);
+
+  const cortexMat = useMemo(() => {
+    return new THREE.MeshPhysicalMaterial({
+      color: '#38bdf8',
+      transmission: 0.65,
+      thickness: 1.1,
+      roughness: 0.22,
+      clearcoat: 0.9,
+      emissive: '#0284c7',
+      emissiveIntensity: 0.35,
+      transparent: true,
+      opacity: 0.92,
+    });
+  }, []);
+
+  // Firing Synaptic Particles
+  const synapseParticles = useMemo(() => {
+    const count = 72;
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      const rad = 0.55 + Math.random() * 0.32;
+      pos[i * 3] = Math.sin(phi) * Math.cos(theta) * rad;
+      pos[i * 3 + 1] = Math.cos(phi) * rad * 0.85;
+      pos[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * rad;
+    }
+    return pos;
+  }, []);
+
+  useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    if (brainRef.current) {
+      brainRef.current.rotation.y = time * 0.35;
+      brainRef.current.position.y = 0.15 + Math.sin(time * 1.5) * 0.03;
+    }
+    if (sparksRef.current) {
+      sparksRef.current.rotation.y = -time * 0.5;
+    }
+  });
+
+  return (
+    <group position={[0, 0.15, 0]}>
+      <group ref={brainRef}>
+        {/* Left Hemisphere */}
+        <mesh
+          geometry={hemisphereGeoL}
+          material={cortexMat}
+          position={[-0.38, 0, 0]}
+          scale={[0.85, 0.95, 1.15]}
+        />
+        {/* Right Hemisphere */}
+        <mesh
+          geometry={hemisphereGeoR}
+          material={cortexMat}
+          position={[0.38, 0, 0]}
+          scale={[0.85, 0.95, 1.15]}
+        />
+
+        {/* Brainstem & Cerebellum */}
+        <mesh position={[0, -0.65, -0.2]} material={cortexMat}>
+          <cylinderGeometry args={[0.22, 0.18, 0.55, 18]} />
+        </mesh>
+      </group>
+
+      {/* Electric Synaptic Sparks */}
+      <points ref={sparksRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={synapseParticles.length / 3}
+            array={synapseParticles}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.075}
+          color="#38bdf8"
+          transparent
+          opacity={0.9}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      {/* Interactive Hotspot */}
+      <Html position={[0.85, 0.5, 0]} center distanceFactor={5.5}>
+        <button
+          onClick={() => onSelectHotspot('neuro')}
+          className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/95 border border-sky-200 shadow-md hover:border-sky-500 hover:scale-105 transition-all text-left cursor-pointer"
+        >
+          <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+          <span className="text-[10px] font-bold text-slate-800">
+            Synaptic Map • Normal
+          </span>
+        </button>
+      </Html>
+    </group>
+  );
+}
+
+/**
+ * 3. 3D Whole-Body Digital Twin (Diagnostic Scanner)
+ * Translucent glassmorphic human silhouette with an animated vertical laser scan sweep
+ */
+function DigitalTwinBody3D({ onSelectHotspot }) {
+  const laserRef = useRef();
+  const bodyGroupRef = useRef();
+
+  const hologramMat = useMemo(() => {
+    return new THREE.MeshPhysicalMaterial({
+      color: '#10b981',
+      transmission: 0.8,
+      roughness: 0.15,
+      thickness: 1.2,
+      clearcoat: 1.0,
+      emissive: '#059669',
+      emissiveIntensity: 0.35,
+      transparent: true,
+      opacity: 0.82,
+    });
+  }, []);
+
+  useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    // Vertical laser scanner sweep (-0.8 to +0.8)
+    if (laserRef.current) {
+      laserRef.current.position.y = Math.sin(time * 1.6) * 0.78;
+    }
+    if (bodyGroupRef.current) {
+      bodyGroupRef.current.rotation.y = Math.sin(time * 0.4) * 0.25;
+    }
+  });
+
+  return (
+    <group position={[0, -0.05, 0]}>
+      {/* Human Silhouette Group */}
+      <group ref={bodyGroupRef}>
+        {/* Head */}
+        <mesh position={[0, 0.75, 0]} material={hologramMat}>
+          <sphereGeometry args={[0.2, 24, 24]} />
+        </mesh>
+        {/* Neck */}
+        <mesh position={[0, 0.52, 0]} material={hologramMat}>
+          <cylinderGeometry args={[0.08, 0.09, 0.14, 16]} />
+        </mesh>
+        {/* Chest & Torso */}
+        <mesh position={[0, 0.22, 0]} material={hologramMat}>
+          <cylinderGeometry args={[0.28, 0.22, 0.48, 20]} />
+        </mesh>
+        {/* Pelvis */}
+        <mesh position={[0, -0.1, 0]} material={hologramMat}>
+          <cylinderGeometry args={[0.22, 0.2, 0.22, 20]} />
+        </mesh>
+        {/* Left Arm */}
+        <mesh position={[0.34, 0.18, 0]} rotation={[0, 0, -0.15]} material={hologramMat}>
+          <cylinderGeometry args={[0.07, 0.05, 0.55, 16]} />
+        </mesh>
+        {/* Right Arm */}
+        <mesh position={[-0.34, 0.18, 0]} rotation={[0, 0, 0.15]} material={hologramMat}>
+          <cylinderGeometry args={[0.07, 0.05, 0.55, 16]} />
+        </mesh>
+        {/* Left Leg */}
+        <mesh position={[0.13, -0.48, 0]} material={hologramMat}>
+          <cylinderGeometry args={[0.08, 0.06, 0.62, 16]} />
+        </mesh>
+        {/* Right Leg */}
+        <mesh position={[-0.13, -0.48, 0]} material={hologramMat}>
+          <cylinderGeometry args={[0.08, 0.06, 0.62, 16]} />
+        </mesh>
+      </group>
+
+      {/* Sweeping Laser Diagnostic Ring */}
+      <mesh ref={laserRef} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.55, 0.018, 16, 48]} />
+        <meshBasicMaterial color="#34d399" transparent opacity={0.85} />
+      </mesh>
+
+      {/* Clickable Hotspots across organ systems */}
+      <Html position={[0, 0.85, 0.2]} center distanceFactor={5.5}>
+        <button
+          onClick={() => onSelectHotspot('brain')}
+          className="px-2 py-0.5 rounded-full bg-white/95 border border-emerald-300 text-[10px] font-bold text-slate-800 hover:scale-105 shadow-md transition-all cursor-pointer"
+        >
+          🧠 Brain
+        </button>
+      </Html>
+
+      <Html position={[0, 0.25, 0.32]} center distanceFactor={5.5}>
+        <button
+          onClick={() => onSelectHotspot('heart')}
+          className="px-2 py-0.5 rounded-full bg-white/95 border border-emerald-300 text-[10px] font-bold text-slate-800 hover:scale-105 shadow-md transition-all cursor-pointer"
+        >
+          ❤️ Heart
+        </button>
+      </Html>
+
+      <Html position={[0, -0.5, 0.2]} center distanceFactor={5.5}>
+        <button
+          onClick={() => onSelectHotspot('ortho')}
+          className="px-2 py-0.5 rounded-full bg-white/95 border border-emerald-300 text-[10px] font-bold text-slate-800 hover:scale-105 shadow-md transition-all cursor-pointer"
+        >
+          🦴 Mobility
+        </button>
+      </Html>
+    </group>
+  );
+}
+
+/**
+ * 4. Architectural Clinical Diagnostic Pedestal & 3D Animated ECG Wave
+ */
+function DiagnosticPedestal() {
+  const ecgRef = useRef();
+
+  // 3D Circular Animated ECG Wave Curve
+  const ecgGeo = useMemo(() => {
+    const points = [];
+    const r = 1.35;
+    for (let i = 0; i <= 64; i++) {
+      const theta = (i / 64) * Math.PI * 2;
+      const x = Math.cos(theta) * r;
+      const z = Math.sin(theta) * r;
+      let y = -0.92;
+      // Front ECG QRS Wave spike
+      if (i >= 26 && i <= 38) {
+        const p = (i - 26) / 12;
+        if (p < 0.2) y -= 0.05;
+        else if (p < 0.45) y += 0.38; // R peak
+        else if (p < 0.7) y -= 0.18;  // S wave
+        else if (p < 0.9) y += 0.09;  // T wave
+      }
+      points.push(new THREE.Vector3(x, y, z));
+    }
+    const curve = new THREE.CatmullRomCurve3(points, true);
+    return new THREE.TubeGeometry(curve, 128, 0.016, 8, true);
+  }, []);
+
+  useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    if (ecgRef.current) {
+      ecgRef.current.rotation.y = time * 0.45;
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Matte Clinical Stage Disc */}
+      <mesh position={[0, -0.98, 0]} receiveShadow>
+        <cylinderGeometry args={[1.35, 1.4, 0.06, 48]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.05} />
+      </mesh>
+
+      {/* Concentric Emerald Diagnostic Halo */}
+      <mesh position={[0, -0.948, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1.28, 0.01, 16, 64]} />
+        <meshBasicMaterial color="#10b981" />
+      </mesh>
+
+      {/* 3D Animated ECG Wave Ribbon */}
+      <mesh ref={ecgRef} geometry={ecgGeo}>
+        <meshStandardMaterial
+          color="#10b981"
+          emissive="#059669"
+          emissiveIntensity={0.65}
+          roughness={0.15}
+        />
+      </mesh>
+
+      {/* Subtle Ambient Ground Ring */}
+      <mesh position={[0, -0.99, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[1.6, 36]} />
+        <meshBasicMaterial color="#059669" transparent opacity={0.08} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
+ * Main Interactive Hospital 3D Scene
+ */
+export function HospitalScene() {
+  const hospitalConfig = useVerticalStore((state) => state.hospitalCustomizer);
+  const updateHospital = useVerticalStore((state) => state.updateHospitalCustomizer);
+  const mode = hospitalConfig.explorerMode || 'heart';
+  const bpm = hospitalConfig.bpm || 72;
+  const xray = hospitalConfig.xrayMode || false;
+
+  const handleSelectHotspot = (id) => {
+    const messages = {
+      aorta: "🩺 Aorta & Coronary Output: 5.1 L/min • Healthy arterial pressure 120/80 mmHg.",
+      ventricle: "❤️ Myocardial Function: 64% Ejection Fraction • Optimal ventricular contractility.",
+      neuro: "🧠 Neural Synapse Network: Optimal cognitive transmission • Emergency stroke response active.",
+      brain: "🧠 Brain & Neurological Institute: Comprehensive Stroke Center • 24/7 neurovascular team.",
+      heart: "❤️ Cardiovascular Care: Robotic cardiac bypass & structural heart interventions.",
+      ortho: "🦴 Robotic Orthopedics: Joint preservation & minimally invasive spine care.",
+    };
+    updateHospital({
+      telemetryMessage: messages[id] || "✨ Optimal clinical telemetry recorded.",
+      activeHotspot: id,
+    });
+  };
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* 1. Main 3D Anatomical Organ / Twin */}
+      {mode === 'heart' && (
+        <BeatingHeart3D bpm={bpm} xray={xray} onSelectHotspot={handleSelectHotspot} />
+      )}
+      {mode === 'brain' && (
+        <NeuralBrain3D onSelectHotspot={handleSelectHotspot} />
+      )}
+      {mode === 'body' && (
+        <DigitalTwinBody3D onSelectHotspot={handleSelectHotspot} />
+      )}
+
+      {/* 2. Clinical Diagnostic Pedestal & ECG Ribbon */}
+      <DiagnosticPedestal />
+
+      {/* 3. Glassmorphic Telemetry Overlay Badges */}
+      <Float speed={1.4} rotationIntensity={0.05} floatIntensity={0.35}>
+        <Html position={[-1.25, 0.72, 0.2]} center distanceFactor={6}>
           <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-100 shadow-xl shadow-slate-900/5 select-none pointer-events-none whitespace-nowrap">
             <span className="flex h-2.5 w-2.5 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
             </span>
             <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">Board Certified</div>
-              <div className="text-[9px] font-semibold text-emerald-700">Internal Medicine • Lead MD</div>
+              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">
+                {mode === 'heart' ? 'Cardiac Rhythm' : mode === 'brain' ? 'Neural Activity' : 'Digital Twin'}
+              </div>
+              <div className="text-[9px] font-semibold text-emerald-700">
+                {mode === 'heart' ? `${bpm} BPM • Normal Sinus` : mode === 'brain' ? 'Alpha & Beta Waves Sync' : 'Full Scan Verified'}
+              </div>
             </div>
           </div>
         </Html>
       </Float>
 
-      {/* 2. Level-1 Trauma & 24/7 Rapid Response (Top Right) */}
-      <Float speed={1.3} rotationIntensity={0.06} floatIntensity={0.4}>
-        <Html position={[1.18, 0.60, 0.2]} center distanceFactor={6}>
+      <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.35}>
+        <Html position={[1.25, 0.65, 0.2]} center distanceFactor={6}>
           <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-100 shadow-xl shadow-slate-900/5 select-none pointer-events-none whitespace-nowrap">
             <div className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center text-[10px] font-black border border-emerald-200/60">
               24h
             </div>
             <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">Level-1 Trauma</div>
-              <div className="text-[9px] font-semibold text-emerald-700">Immediate Triage Active</div>
+              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">
+                Level-1 Verified
+              </div>
+              <div className="text-[9px] font-semibold text-emerald-700">
+                Rapid Emergency Triage
+              </div>
             </div>
           </div>
         </Html>
       </Float>
-
-      {/* 3. Clinical Precision Badge (Bottom Right) */}
-      <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.3}>
-        <Html position={[1.12, -0.22, 0.3]} center distanceFactor={6}>
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 select-none pointer-events-none whitespace-nowrap">
-            <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-bold">
-              ✓
-            </div>
-            <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">99.8% Precision</div>
-              <div className="text-[9px] font-medium text-slate-500">Diagnostic Accuracy</div>
-            </div>
-          </div>
-        </Html>
-      </Float>
-
-      {/* ----------------- ARCHITECTURAL CLINICAL PODIUM ----------------- */}
-      {/* Matte White Medical Stage */}
-      <mesh position={[0, -0.98, 0]} receiveShadow>
-        <cylinderGeometry args={[1.15, 1.2, 0.06, 48]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.05} />
-      </mesh>
-
-      {/* Glowing Clinical Emerald Halo Ring */}
-      <mesh position={[0, -0.95, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.12, 0.012, 16, 64]} />
-        <meshBasicMaterial color="#10b981" />
-      </mesh>
-
-      {/* Subtle Step Ripple Ring */}
-      <mesh ref={rippleRef} position={[0, -0.94, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.3, 0.6, 32]} />
-        <meshBasicMaterial color="#10b981" transparent opacity={0.3} side={THREE.DoubleSide} />
-      </mesh>
     </group>
   );
 }
-
-/**
- * Main HospitalScene for React Three Fiber Viewport
- */
-export function HospitalScene() {
-  const hospitalConfig = useVerticalStore((state) => state.hospitalCustomizer);
-  const updateHospital = useVerticalStore((state) => state.updateHospitalCustomizer);
-
-  return (
-    <group position={[0, 0.1, 0]}>
-      <React.Suspense
-        fallback={
-          <Html center>
-            <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/90 border border-emerald-200 shadow-xl backdrop-blur-md">
-              <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-              <span className="text-[11px] font-semibold text-emerald-800 tracking-wider">
-                Loading 3D Doctor Model...
-              </span>
-            </div>
-          </Html>
-        }
-      >
-        <RealDocModel config={hospitalConfig} updateConfig={updateHospital} />
-      </React.Suspense>
-    </group>
-  );
-}
-
-useGLTF.preload('./models/docmodel.glb');

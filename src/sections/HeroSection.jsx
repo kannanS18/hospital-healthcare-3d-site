@@ -4,7 +4,12 @@ import { ArrowRight, Search, ShieldCheck, HeartPulse, Sparkles, CheckCircle2 } f
 
 export function HeroSection({ onOpenBooking }) {
   const setActivePage = useVerticalStore((state) => state.setActivePage);
-  const hospitalSpeech = useVerticalStore((state) => state.hospitalCustomizer.speechMessage);
+  const hospitalTelemetry = useVerticalStore(
+    (state) => state.hospitalCustomizer.telemetryMessage
+  );
+  const currentMode = useVerticalStore(
+    (state) => state.hospitalCustomizer.explorerMode || 'heart'
+  );
   const updateHospital = useVerticalStore((state) => state.updateHospitalCustomizer);
 
   return (
@@ -46,71 +51,72 @@ export function HeroSection({ onOpenBooking }) {
         </button>
       </div>
 
-      {/* Doctor Mascot Interactive Dialogue Bubble */}
+      {/* 3D Clinical Anatomy & Digital Twin Live Console */}
       <div className="p-4 rounded-2xl bg-white border border-emerald-200/90 shadow-md max-w-xl">
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base flex-shrink-0">
-            🩺
+            {currentMode === 'heart' ? '❤️' : currentMode === 'brain' ? '🧠' : '🧍'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
-                Dr. Maya Thorne, MD • 3D Physician Mascot
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                  AuraCare 3D Digital Twin • Live Clinical Explorer
+                </span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
             </div>
             <p className="text-xs text-slate-800 font-medium mt-1 leading-relaxed">
-              {hospitalSpeech ||
-                "👋 Welcome to AuraCare! Move your cursor across the screen — my gaze tracks your pointer in real-time."}
+              {hospitalTelemetry ||
+                "❤️ Cardiology Suite: Normal Sinus Rhythm (72 BPM) • 120/80 mmHg • SpO2 99%"}
             </p>
-            {/* Quick Mascot Triggers */}
-            <div className="mt-2.5 flex flex-wrap gap-2">
+            {/* Quick Interactive Organ Triggers */}
+            <div className="mt-3 flex flex-wrap gap-2">
               <button
                 onClick={() =>
                   updateHospital({
-                    triggerWalkIn: true,
-                    speechMessage: "🚶‍♀️ Dr. Maya walking up to welcome you to AuraCare Medical Center!",
+                    explorerMode: 'heart',
+                    bpm: 72,
+                    telemetryMessage: "❤️ Cardiology Suite: Real-time 3D Beating Heart • 72 BPM • Aorta & Coronary Output Active",
                   })
                 }
-                className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all cursor-pointer ${
+                  currentMode === 'heart'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                }`}
               >
-                🚶‍♀️ Walk Up
+                ❤️ Inspect Heart
               </button>
               <button
                 onClick={() =>
                   updateHospital({
-                    isWaving: true,
-                    speechMessage: "👋 Hello! Dr. Maya at your service. Our emergency trauma & cardiology suites are open 24/7!",
+                    explorerMode: 'brain',
+                    telemetryMessage: "🧠 Neurological Institute: 3D Cerebral Cortex & Synaptic Network • Stroke Unit Active",
                   })
                 }
-                className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all cursor-pointer ${
+                  currentMode === 'brain'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                }`}
               >
-                👋 Wave
+                🧠 Neural Scan
               </button>
               <button
                 onClick={() =>
                   updateHospital({
-                    speechMessage: "💓 Live Telemetry: Heart Rate 72 BPM, Blood Pressure 120/80 mmHg, SpO2 99%. All vitals optimal!",
+                    explorerMode: 'body',
+                    telemetryMessage: "🧍 Digital Twin: Holographic Laser Diagnostic Scanner • All Organ Systems Normal",
                   })
                 }
-                className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all cursor-pointer ${
+                  currentMode === 'body'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                }`}
               >
-                🩺 Vitals
-              </button>
-              <button
-                onClick={() => {
-                  const tips = [
-                    "“A 20-minute daily brisk walk lowers cardiovascular risk by 30%.” — Dr. Maya",
-                    "“Drinking 2.5L of water daily enhances cellular repair and cognitive focus.” — Dr. Maya",
-                    "“7-8 hours of sleep boosts your natural T-cell immunity by 40%.” — Dr. Maya",
-                    "“Prioritizing annual preventive wellness screenings saves lives.” — Dr. Maya",
-                  ];
-                  const t = tips[Math.floor(Math.random() * tips.length)];
-                  updateHospital({ speechMessage: t });
-                }}
-                className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
-              >
-                💡 Health Tip
+                🧍 Body Scanner
               </button>
             </div>
           </div>
