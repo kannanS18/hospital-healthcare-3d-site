@@ -1,6 +1,7 @@
 import React, { Suspense, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Html } from '@react-three/drei';
+import * as THREE from 'three';
+import { OrbitControls, Environment, Html, ContactShadows } from '@react-three/drei';
 import { useVerticalStore } from '../store/useVerticalStore';
 import { HospitalScene } from './scenes/HospitalScene';
 import { CustomizerToolbar } from './components/CustomizerToolbar';
@@ -25,7 +26,7 @@ function CameraRig() {
 
   useEffect(() => {
     if (!controlsRef.current) return;
-    controlsRef.current.object.position.set(0, 0.20, 3.1);
+    controlsRef.current.object.position.set(0, 0.16, 2.95);
     controlsRef.current.target.set(0, 0.05, 0);
   }, []);
 
@@ -35,7 +36,7 @@ function CameraRig() {
       enablePan={false}
       enableZoom={true}
       minDistance={1.6}
-      maxDistance={5.5}
+      maxDistance={5.2}
       maxPolarAngle={Math.PI / 2 - 0.05} // Keep above floor
       dampingFactor={0.05}
     />
@@ -48,40 +49,57 @@ export function SceneContainer() {
       <CanvasErrorBoundary>
         <Canvas
           shadows
-          camera={{ position: [0, 0.20, 3.1], fov: 38 }}
-          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+          camera={{ position: [0, 0.16, 2.95], fov: 36 }}
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance',
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.05,
+          }}
         >
         <Suspense fallback={<Loader />}>
-          {/* Studio Clinical Lighting */}
-          <Environment preset="studio" environmentIntensity={0.65} />
+          {/* Natural Soft Clinical Lighting */}
+          <Environment preset="city" environmentIntensity={0.5} />
 
-          {/* Ambient & Key Lights */}
-          <ambientLight intensity={0.8} />
+          {/* Ambient & Diffused Studio Fill */}
+          <ambientLight intensity={0.55} />
           
-          {/* Key Daylight */}
+          {/* Key Portrait Light with Soft Shadows */}
           <directionalLight
-            position={[3, 5, 4]}
-            intensity={1.2}
+            position={[2.5, 4.5, 3.5]}
+            intensity={0.9}
             castShadow
             shadow-mapSize={[1024, 1024]}
+            shadow-bias={-0.0001}
           />
           
-          {/* Soft Fill Light */}
+          {/* Soft Cool Clinical Fill Light */}
           <directionalLight
-            position={[-3, 3, 2]}
-            intensity={0.6}
-            color="#f0fdf4"
+            position={[-3, 2.5, 2]}
+            intensity={0.45}
+            color="#f1f5f9"
           />
 
-          {/* Signature Hospital Emerald Rim Light */}
+          {/* Subtle Silhouette Emerald Accent Rim */}
           <directionalLight
-            position={[0, 3, -3]}
-            intensity={1.4}
+            position={[0, 2.5, -2.8]}
+            intensity={0.5}
             color="#10b981"
           />
 
-          {/* 3D Doctor Mascot Scene (User's docmodel.glb) */}
+          {/* 3D Doctor Mascot Scene */}
           <HospitalScene />
+
+          {/* Realistic Contact Shadow on Podium */}
+          <ContactShadows
+            position={[0, -0.955, 0]}
+            opacity={0.45}
+            scale={2.6}
+            blur={1.8}
+            far={1.4}
+            color="#047857"
+          />
 
           {/* Camera Controls */}
           <CameraRig />

@@ -189,7 +189,6 @@ function createRiggedDoctor(scene) {
  */
 function RealDocModel({ config, updateConfig }) {
   const groupRef = useRef();
-  const floatingHeartRef = useRef();
   const rippleRef = useRef();
 
   // Load user's provided 3D doctor model
@@ -200,28 +199,6 @@ function RealDocModel({ config, updateConfig }) {
   const [isWalkingIn, setIsWalkingIn] = useState(true);
   const [walkTimer, setWalkTimer] = useState(0);
   const [isGreeting, setIsGreeting] = useState(false);
-
-  // 3D Heart Geometry
-  const heartGeo = useMemo(() => {
-    const shape = new THREE.Shape();
-    shape.moveTo(0.25, 0.25);
-    shape.bezierCurveTo(0.25, 0.25, 0.2, 0, 0, 0);
-    shape.bezierCurveTo(-0.3, 0, -0.3, 0.35, -0.3, 0.35);
-    shape.bezierCurveTo(-0.3, 0.55, -0.1, 0.77, 0.25, 0.95);
-    shape.bezierCurveTo(0.6, 0.77, 0.8, 0.55, 0.8, 0.35);
-    shape.bezierCurveTo(0.8, 0.35, 0.8, 0, 0.5, 0);
-    shape.bezierCurveTo(0.35, 0, 0.25, 0.25, 0.25, 0.25);
-    const geo = new THREE.ExtrudeGeometry(shape, {
-      depth: 0.14,
-      bevelEnabled: true,
-      bevelSegments: 5,
-      steps: 2,
-      bevelSize: 0.07,
-      bevelThickness: 0.07,
-    });
-    geo.center();
-    return geo;
-  }, []);
 
   // Trigger Walk-Up Entrance Replay
   useEffect(() => {
@@ -249,7 +226,7 @@ function RealDocModel({ config, updateConfig }) {
     setTimeout(() => {
       setIsGreeting(false);
       updateConfig({ isWaving: false });
-    }, 3200);
+    }, 3400);
   };
 
   // Animation Loop with Procedural Skeletal Animation
@@ -271,8 +248,8 @@ function RealDocModel({ config, updateConfig }) {
       const currentZ = startZ + (targetZ - startZ) * ease;
 
       const stepFreq = 10;
-      const stepBob = Math.abs(Math.sin(nextTime * stepFreq)) * 0.04 * (1 - progress);
-      const legSwing = Math.sin(nextTime * stepFreq) * 0.35 * (1 - progress);
+      const stepBob = Math.abs(Math.sin(nextTime * stepFreq)) * 0.035 * (1 - progress);
+      const legSwing = Math.sin(nextTime * stepFreq) * 0.32 * (1 - progress);
 
       if (groupRef.current) {
         groupRef.current.position.z = currentZ;
@@ -282,18 +259,18 @@ function RealDocModel({ config, updateConfig }) {
       // Natural leg strides
       bones.lThigh.rotation.x = legSwing;
       bones.rThigh.rotation.x = -legSwing;
-      bones.lCalf.rotation.x = Math.max(0, -legSwing) * 0.4;
-      bones.rCalf.rotation.x = Math.max(0, legSwing) * 0.4;
+      bones.lCalf.rotation.x = Math.max(0, -legSwing) * 0.35;
+      bones.rCalf.rotation.x = Math.max(0, legSwing) * 0.35;
 
       // Arm swing during walking
-      bones.lUpperArm.rotation.set(0.08 - legSwing * 0.3, 0, -1.15);
-      bones.rUpperArm.rotation.set(0.08 + legSwing * 0.3, 0, 1.15);
-      bones.lLowerArm.rotation.set(0, 0, -0.15);
-      bones.rLowerArm.rotation.set(0, 0, 0.15);
+      bones.lUpperArm.rotation.set(0.10 - legSwing * 0.25, 0, -1.12);
+      bones.rUpperArm.rotation.set(0.10 + legSwing * 0.25, 0, 1.12);
+      bones.lLowerArm.rotation.set(0, 0, -0.2);
+      bones.rLowerArm.rotation.set(0, 0, 0.2);
 
       if (rippleRef.current) {
         rippleRef.current.scale.set(1 + progress * 0.8, 1 + progress * 0.8, 1);
-        rippleRef.current.material.opacity = Math.max(0, 0.4 - progress * 0.35);
+        rippleRef.current.material.opacity = Math.max(0, 0.35 - progress * 0.3);
       }
 
       if (progress >= 1) {
@@ -309,79 +286,65 @@ function RealDocModel({ config, updateConfig }) {
         groupRef.current.position.y = -0.95;
       }
 
-      // Gentle rhythmic breathing
-      const breath = Math.sin(time * 2.2) * 0.018;
+      // Calm, dignified breathing rhythm
+      const breath = Math.sin(time * 1.8) * 0.012;
       bones.chest.rotation.x = breath;
-      bones.spine.position.y = 0.28 + breath * 0.1;
+      bones.spine.position.y = 0.28 + breath * 0.08;
 
       // Subtle human weight-shift sway
-      bones.hips.rotation.y = Math.sin(time * 0.8) * 0.02;
-      bones.hips.rotation.z = Math.cos(time * 0.8) * 0.01;
+      bones.hips.rotation.y = Math.sin(time * 0.7) * 0.015;
+      bones.hips.rotation.z = Math.cos(time * 0.7) * 0.008;
 
       // Grounded resting legs
-      bones.lThigh.rotation.set(0, 0, -0.01);
-      bones.rThigh.rotation.set(0, 0, 0.01);
+      bones.lThigh.rotation.set(0, 0, -0.015);
+      bones.rThigh.rotation.set(0, 0, 0.015);
       bones.lCalf.rotation.set(0, 0, 0);
       bones.rCalf.rotation.set(0, 0, 0);
 
-      // Left arm always rests naturally by the doctor's side
-      bones.lUpperArm.rotation.z = THREE.MathUtils.damp(bones.lUpperArm.rotation.z, -1.18, 5, delta);
-      bones.lUpperArm.rotation.x = THREE.MathUtils.damp(bones.lUpperArm.rotation.x, 0.08, 5, delta);
-      bones.lLowerArm.rotation.z = THREE.MathUtils.damp(bones.lLowerArm.rotation.z, -0.15, 5, delta);
+      // Left arm rests gracefully with natural elbow contour
+      bones.lUpperArm.rotation.z = THREE.MathUtils.damp(bones.lUpperArm.rotation.z, -1.12, 5, delta);
+      bones.lUpperArm.rotation.x = THREE.MathUtils.damp(bones.lUpperArm.rotation.x, 0.12, 5, delta);
+      bones.lLowerArm.rotation.z = THREE.MathUtils.damp(bones.lLowerArm.rotation.z, -0.22, 5, delta);
       bones.lHand.rotation.z = 0;
 
-      // 3. Head & Neck Gaze Tracking (follows user mouse pointer)
-      const targetLookX = (config.mascotFollow !== false ? state.pointer.x : 0) * 0.35;
-      const targetLookY = (config.mascotFollow !== false ? -state.pointer.y : 0) * 0.18;
+      // 3. Head & Neck Gaze Tracking (attentive, calm eye contact)
+      const targetLookX = (config.mascotFollow !== false ? state.pointer.x : 0) * 0.32;
+      const targetLookY = (config.mascotFollow !== false ? -state.pointer.y : 0) * 0.16;
       bones.head.rotation.y = THREE.MathUtils.damp(bones.head.rotation.y, targetLookX, 5, delta);
       bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY, 5, delta);
-      bones.neck.rotation.y = THREE.MathUtils.damp(bones.neck.rotation.y, targetLookX * 0.5, 5, delta);
+      bones.neck.rotation.y = THREE.MathUtils.damp(bones.neck.rotation.y, targetLookX * 0.45, 5, delta);
 
-      // 4. Natural Waving Motion (Friendly greeting wave, hand in air beside head)
+      // 4. Professional Greeting Gesture (Welcoming, polite doctor greeting)
       const isWavingActive = isGreeting || config.isWaving;
       if (isWavingActive) {
-        // Upper arm: positioned comfortably forward and down (elbow rests near side/chest level)
-        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 0.10, 6, delta);
+        // Upper arm: moves forward into an open welcoming posture
+        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 0.25, 6, delta);
         bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, 0.45, 6, delta);
-        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.20, 6, delta);
+        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.22, 6, delta);
 
-        // Forearm: raised upright into the air beside head (palm facing forward, hand beside head)
-        const waveOsc = Math.sin(time * 8);
-        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, -1.35 + waveOsc * 0.22, 7, delta);
-        bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0.15, 6, delta);
+        // Forearm: raised in a polite, dignified wave beside the shoulder
+        const waveOsc = Math.sin(time * 7);
+        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, -1.25 + waveOsc * 0.18, 7, delta);
+        bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0.12, 6, delta);
 
-        // Hand: waves side-to-side in the air warmly
-        bones.rHand.rotation.z = waveOsc * 0.35;
-        bones.rHand.rotation.y = Math.sin(time * 8) * 0.15;
+        // Hand: gentle welcoming hand motion
+        bones.rHand.rotation.z = waveOsc * 0.25;
+        bones.rHand.rotation.y = 0.2;
 
-        // Friendly welcoming head nod & slight tilt
-        bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, -0.06, 5, delta);
-        bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY + Math.sin(time * 4) * 0.04, 5, delta);
+        // Friendly reassuring head nod
+        bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, -0.04, 5, delta);
+        bones.head.rotation.x = THREE.MathUtils.damp(bones.head.rotation.x, targetLookY + Math.sin(time * 3.5) * 0.03, 5, delta);
       } else {
-        // Return right arm smoothly to natural resting standing posture
-        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 1.18, 5, delta);
-        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.08, 5, delta);
-        bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, 0, 5, delta);
-        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, 0.15, 5, delta);
+        // Return right arm smoothly to professional standing rest pose
+        bones.rUpperArm.rotation.z = THREE.MathUtils.damp(bones.rUpperArm.rotation.z, 1.12, 5, delta);
+        bones.rUpperArm.rotation.x = THREE.MathUtils.damp(bones.rUpperArm.rotation.x, 0.12, 5, delta);
+        bones.rUpperArm.rotation.y = THREE.MathUtils.damp(bones.rUpperArm.rotation.y, 0.10, 5, delta);
+        bones.rLowerArm.rotation.z = THREE.MathUtils.damp(bones.rLowerArm.rotation.z, 0.22, 5, delta);
         bones.rLowerArm.rotation.y = THREE.MathUtils.damp(bones.rLowerArm.rotation.y, 0, 5, delta);
         bones.rHand.rotation.z = THREE.MathUtils.damp(bones.rHand.rotation.z, 0, 5, delta);
         bones.rHand.rotation.y = THREE.MathUtils.damp(bones.rHand.rotation.y, 0, 5, delta);
         bones.head.rotation.z = THREE.MathUtils.damp(bones.head.rotation.z, 0, 5, delta);
       }
-    }
-
-    // 5. Beating Floating Heart Hologram
-    if (floatingHeartRef.current) {
-      const pulsePhase = (time * 2.2) % 1;
-      let heartScale = 0.32;
-      if (pulsePhase < 0.15) {
-        heartScale = 0.32 + Math.sin((pulsePhase * Math.PI) / 0.15) * 0.06;
-      } else if (pulsePhase > 0.2 && pulsePhase < 0.35) {
-        heartScale = 0.32 + Math.sin(((pulsePhase - 0.2) * Math.PI) / 0.15) * 0.04;
-      }
-      floatingHeartRef.current.scale.set(heartScale, heartScale, heartScale);
-      floatingHeartRef.current.position.y = 0.9 + Math.sin(time * 1.6) * 0.05;
-      floatingHeartRef.current.rotation.y = time * 0.6;
     }
   });
 
@@ -395,93 +358,70 @@ function RealDocModel({ config, updateConfig }) {
         </group>
       </group>
 
-      {/* ----------------- FLOATING 3D MEDICAL ACCENTS ----------------- */}
-      {/* 1. Pulsing Beating Heart */}
-      <mesh
-        ref={floatingHeartRef}
-        geometry={heartGeo}
-        position={[0.88, 0.88, 0.25]}
-        rotation={[0, 0, Math.PI]}
-      >
-        <meshStandardMaterial
-          color="#ef4444"
-          roughness={0.25}
-          metalness={0.3}
-          emissive="#991b1b"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-
-      {/* 2. Floating Glowing Emerald Hospital Cross */}
-      <Float speed={2} rotationIntensity={1} floatIntensity={1.2}>
-        <group position={[-0.88, 0.95, 0.15]}>
-          <mesh>
-            <boxGeometry args={[0.09, 0.28, 0.06]} />
-            <meshStandardMaterial
-              color="#059669"
-              metalness={0.4}
-              roughness={0.2}
-              emissive="#10b981"
-              emissiveIntensity={0.5}
-            />
-          </mesh>
-          <mesh>
-            <boxGeometry args={[0.28, 0.09, 0.06]} />
-            <meshStandardMaterial
-              color="#059669"
-              metalness={0.4}
-              roughness={0.2}
-              emissive="#10b981"
-              emissiveIntensity={0.5}
-            />
-          </mesh>
-        </group>
+      {/* ----------------- PROFESSIONAL CLINICAL HUD TELEMETRY CARDS ----------------- */}
+      {/* 1. Board Certified Physician Badge (Top Left) */}
+      <Float speed={1.5} rotationIntensity={0.06} floatIntensity={0.35}>
+        <Html position={[-1.15, 0.70, 0.2]} center distanceFactor={6}>
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-100 shadow-xl shadow-slate-900/5 select-none pointer-events-none whitespace-nowrap">
+            <span className="flex h-2.5 w-2.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+            </span>
+            <div className="text-left">
+              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">Board Certified</div>
+              <div className="text-[9px] font-semibold text-emerald-700">Internal Medicine • Lead MD</div>
+            </div>
+          </div>
+        </Html>
       </Float>
 
-      {/* 3. Floating Medicinal Capsule */}
-      <Float speed={1.5} rotationIntensity={1.5} floatIntensity={1.5}>
-        <group position={[0.78, 0.18, 0.45]} rotation={[0.6, 0.4, 0.8]} scale={[0.8, 0.8, 0.8]}>
-          <mesh position={[0, 0.07, 0]}>
-            <cylinderGeometry args={[0.06, 0.06, 0.14, 16]} />
-            <meshStandardMaterial color="#10b981" roughness={0.2} />
-          </mesh>
-          <mesh position={[0, -0.07, 0]}>
-            <cylinderGeometry args={[0.06, 0.06, 0.14, 16]} />
-            <meshStandardMaterial color="#ffffff" roughness={0.2} />
-          </mesh>
-          <mesh position={[0, 0.14, 0]}>
-            <sphereGeometry args={[0.06, 16, 16]} />
-            <meshStandardMaterial color="#10b981" roughness={0.2} />
-          </mesh>
-          <mesh position={[0, -0.14, 0]}>
-            <sphereGeometry args={[0.06, 16, 16]} />
-            <meshStandardMaterial color="#ffffff" roughness={0.2} />
-          </mesh>
-        </group>
+      {/* 2. Level-1 Trauma & 24/7 Rapid Response (Top Right) */}
+      <Float speed={1.3} rotationIntensity={0.06} floatIntensity={0.4}>
+        <Html position={[1.18, 0.60, 0.2]} center distanceFactor={6}>
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-100 shadow-xl shadow-slate-900/5 select-none pointer-events-none whitespace-nowrap">
+            <div className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center text-[10px] font-black border border-emerald-200/60">
+              24h
+            </div>
+            <div className="text-left">
+              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">Level-1 Trauma</div>
+              <div className="text-[9px] font-semibold text-emerald-700">Immediate Triage Active</div>
+            </div>
+          </div>
+        </Html>
       </Float>
 
-      {/* ----------------- CIRCULAR PODIUM & SHADOW FLOOR ----------------- */}
+      {/* 3. Clinical Precision Badge (Bottom Right) */}
+      <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.3}>
+        <Html position={[1.12, -0.22, 0.3]} center distanceFactor={6}>
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 select-none pointer-events-none whitespace-nowrap">
+            <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-bold">
+              ✓
+            </div>
+            <div className="text-left">
+              <div className="text-[10px] font-bold tracking-wider text-slate-900 uppercase">99.8% Precision</div>
+              <div className="text-[9px] font-medium text-slate-500">Diagnostic Accuracy</div>
+            </div>
+          </div>
+        </Html>
+      </Float>
+
+      {/* ----------------- ARCHITECTURAL CLINICAL PODIUM ----------------- */}
+      {/* Matte White Medical Stage */}
       <mesh position={[0, -0.98, 0]} receiveShadow>
-        <cylinderGeometry args={[1.05, 1.1, 0.06, 36]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.3} metalness={0.1} />
+        <cylinderGeometry args={[1.15, 1.2, 0.06, 48]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.05} />
       </mesh>
 
-      {/* Glowing Emerald Ring */}
+      {/* Glowing Clinical Emerald Halo Ring */}
       <mesh position={[0, -0.95, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.06, 0.015, 12, 48]} />
+        <torusGeometry args={[1.12, 0.012, 16, 64]} />
         <meshBasicMaterial color="#10b981" />
       </mesh>
 
-      {/* Walk Step Ripple Ring */}
+      {/* Subtle Step Ripple Ring */}
       <mesh ref={rippleRef} position={[0, -0.94, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.3, 0.6, 32]} />
         <meshBasicMaterial color="#10b981" transparent opacity={0.3} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Soft Ground Shadow Disc */}
-      <mesh position={[0, -0.99, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[1.35, 32]} />
-        <meshBasicMaterial color="#059669" transparent opacity={0.12} />
       </mesh>
     </group>
   );
