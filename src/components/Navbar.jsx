@@ -9,7 +9,7 @@ import {
   X,
   PhoneCall,
   Clock,
-  ChevronRight,
+  BookOpen,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -18,12 +18,13 @@ export function Navbar() {
   const activePage = useVerticalStore((state) => state.activePage);
   const setActivePage = useVerticalStore((state) => state.setActivePage);
 
-  // 5 Clean, Focused Hospital Navigation Routes (No Duplicates)
+  // Focused Hospital Navigation Routes with Medical Journal / Blog
   const navPages = [
     { id: 'home', label: 'Home' },
     { id: 'doctors', label: 'Doctors' },
     { id: 'departments', label: 'Departments' },
     { id: 'facilities', label: 'Facilities & Tech' },
+    { id: 'blog', label: 'Medical Journal' },
     { id: 'contact', label: 'Emergency & Contact' },
   ];
 
@@ -97,7 +98,7 @@ export function Navbar() {
                 <button
                   key={page.id}
                   onClick={() => setActivePage(page.id)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 shadow-xs'
                       : 'text-slate-600 hover:text-emerald-700 hover:bg-slate-50'
@@ -121,7 +122,7 @@ export function Navbar() {
 
             <button
               onClick={() => setActivePage('appointments')}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider transition-colors shadow-md shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-[0.98]"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book Appointment</span>

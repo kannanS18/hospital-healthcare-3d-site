@@ -222,6 +222,94 @@ export function HomePage({ onOpenBooking }) {
       </section>
 
       {/* =========================================================================
+          LATEST CLINICAL JOURNAL BREAKTHROUGHS
+          ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">
+              Medical Journal
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
+              Physician Insights & Research
+            </h2>
+          </div>
+          <button
+            onClick={() => setActivePage('blog')}
+            className="text-emerald-700 font-bold text-sm hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>Read All Articles</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            onClick={() => setActivePage('blog')}
+            className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between group"
+          >
+            <div className="space-y-3">
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
+                Cardiology
+              </span>
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                Transcatheter Aortic Valve Replacement (TAVR)
+              </h3>
+              <p className="text-xs text-slate-600 line-clamp-2">
+                Minimally invasive keyhole cardiac procedures slashing hospital stays to under 36 hours.
+              </p>
+            </div>
+            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Dr. James Vance, MD</span>
+              <span className="text-emerald-700 font-bold">5 min read &rarr;</span>
+            </div>
+          </div>
+
+          <div
+            onClick={() => setActivePage('blog')}
+            className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between group"
+          >
+            <div className="space-y-3">
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
+                Neurology
+              </span>
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                The Stroke Golden Hour: Critical Neurovascular Warning Signs
+              </h3>
+              <p className="text-xs text-slate-600 line-clamp-2">
+                Why every minute matters during acute cerebral ischemia and the BE-FAST protocol.
+              </p>
+            </div>
+            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Dr. Sarah Lin, MD</span>
+              <span className="text-emerald-700 font-bold">4 min read &rarr;</span>
+            </div>
+          </div>
+
+          <div
+            onClick={() => setActivePage('blog')}
+            className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between group"
+          >
+            <div className="space-y-3">
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
+                Orthopedics
+              </span>
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                Robotic-Assisted Joint Replacement: Sub-Millimeter Accuracy
+              </h3>
+              <p className="text-xs text-slate-600 line-clamp-2">
+                Personalized 3D CT modeling and haptic boundary protection for rapid patient mobility.
+              </p>
+            </div>
+            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Dr. Marcus Reynolds, MD</span>
+              <span className="text-emerald-700 font-bold">6 min read &rarr;</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
           PATIENT RECOVERY STORIES
           ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -71,8 +71,8 @@ export function FooterSection() {
               <li onClick={() => setActivePage('doctors')} className="hover:text-emerald-400 cursor-pointer">
                 Find a Senior Doctor
               </li>
-              <li onClick={() => setActivePage('health-tools')} className="hover:text-emerald-400 cursor-pointer">
-                Health Tools & BMI Checker
+              <li onClick={() => setActivePage('blog')} className="hover:text-emerald-400 cursor-pointer text-emerald-300 font-semibold">
+                Medical Journal & Health Blog
               </li>
               <li onClick={() => setActivePage('facilities')} className="hover:text-emerald-400 cursor-pointer">
                 Hospital Facilities & Tech
