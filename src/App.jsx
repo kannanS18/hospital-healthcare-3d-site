@@ -20,7 +20,7 @@ export default function App() {
   const activePage = useVerticalStore((state) => state.activePage);
   const setActivePage = useVerticalStore((state) => state.setActivePage);
 
-  // Sync with URL Hash on Mount & Popstate (supports both #/home and #home)
+  // Sync with URL Hash on Mount & Hashchange
   useEffect(() => {
     const handleHash = () => {
       let rawHash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
@@ -33,22 +33,10 @@ export default function App() {
 
     handleHash();
     window.addEventListener('hashchange', handleHash);
-    window.addEventListener('popstate', handleHash);
     return () => {
       window.removeEventListener('hashchange', handleHash);
-      window.removeEventListener('popstate', handleHash);
     };
   }, [setActivePage]);
-
-  // Keep window hash synced as #/page
-  useEffect(() => {
-    if (activePage) {
-      const current = window.location.hash.replace(/^#\/?/, '').toLowerCase();
-      if (current !== activePage) {
-        window.location.hash = `/${activePage}`;
-      }
-    }
-  }, [activePage]);
 
   const handleOpenBooking = () => {
     setActivePage('appointments');

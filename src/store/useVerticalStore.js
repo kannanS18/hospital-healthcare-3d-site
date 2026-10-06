@@ -7,8 +7,8 @@ export const useVerticalStore = create((set, get) => ({
   setActivePage: (page) => {
     set({ activePage: page });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (window.location.hash !== `#${page}`) {
-      window.history.pushState(null, '', `#${page}`);
+    if (window.location.hash !== `#/${page}` && window.location.hash !== `#${page}`) {
+      window.location.hash = `/${page}`;
     }
   },
 

@@ -15,7 +15,7 @@ function RealDocModel({ config, updateConfig }) {
   const rippleRef = useRef();
 
   // Load user's provided 3D doctor model
-  const { scene } = useGLTF('/models/docmodel.glb');
+  const { scene } = useGLTF('./models/docmodel.glb');
   const clonedScene = useMemo(() => {
     const clone = scene.clone(true);
     clone.traverse((child) => {
@@ -313,4 +313,4 @@ export function HospitalScene() {
   );
 }
 
-useGLTF.preload('/models/docmodel.glb');
+useGLTF.preload('./models/docmodel.glb');
