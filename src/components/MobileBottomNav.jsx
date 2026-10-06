@@ -14,6 +14,7 @@ import {
 export function MobileBottomNav() {
   const activePage = useVerticalStore((state) => state.activePage);
   const setActivePage = useVerticalStore((state) => state.setActivePage);
+  const setSosModalOpen = useVerticalStore((state) => state.setSosModalOpen);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
@@ -146,7 +147,13 @@ export function MobileBottomNav() {
           return (
             <button
               key={item.id}
-              onClick={() => setActivePage(item.id)}
+              onClick={() => {
+                if (item.isEmergency) {
+                  setSosModalOpen(true);
+                } else {
+                  setActivePage(item.id);
+                }
+              }}
               className={`flex flex-col items-center justify-center w-14 h-12 rounded-xl transition-all active:scale-95 cursor-pointer relative ${
                 isActive
                   ? 'border-2 border-emerald-600 bg-emerald-50/90 text-emerald-900 shadow-xs'

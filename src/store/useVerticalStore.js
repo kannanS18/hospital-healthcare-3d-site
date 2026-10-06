@@ -2,7 +2,10 @@ import { create } from 'zustand';
 
 export const useVerticalStore = create((set, get) => ({
   activeVertical: 'hospital',
-  activePage: 'home', // 'home' | 'doctors' | 'departments' | 'facilities' | 'appointments' | 'health-tools' | 'contact'
+  activePage: 'home', // 'home' | 'doctors' | 'departments' | 'facilities' | 'appointments' | 'health-tools' | 'contact' | 'blog'
+  sosModalOpen: false,
+
+  setSosModalOpen: (open) => set({ sosModalOpen: open }),
 
   setActivePage: (page) => {
     set({ activePage: page });

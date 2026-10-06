@@ -14,9 +14,9 @@ import {
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sosModalOpen, setSosModalOpen] = useState(false);
   const activePage = useVerticalStore((state) => state.activePage);
   const setActivePage = useVerticalStore((state) => state.setActivePage);
+  const setSosModalOpen = useVerticalStore((state) => state.setSosModalOpen);
 
   // Focused Hospital Navigation Routes with Medical Journal / Blog
   const navPages = [
@@ -29,10 +29,7 @@ export function Navbar() {
   ];
 
   return (
-    <>
-      <EmergencySOSModal isOpen={sosModalOpen} onClose={() => setSosModalOpen(false)} />
-
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs transition-all duration-300">
         {/* Top Clinical & Emergency Utility Bar */}
         <div className="bg-slate-900 text-white text-[11px] font-medium py-1 px-4 border-b border-slate-800">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -189,6 +186,5 @@ export function Navbar() {
           </div>
         )}
       </header>
-    </>
   );
 }

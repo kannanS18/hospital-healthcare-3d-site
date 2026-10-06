@@ -4,6 +4,7 @@ import { useVerticalStore } from './store/useVerticalStore';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { FooterSection } from './sections/FooterSection';
+import { EmergencySOSModal } from './components/EmergencySOSModal';
 
 // Hospital Multi-Page Views
 import { HomePage } from './pages/HomePage';
@@ -21,6 +22,8 @@ export default function App() {
 
   const activePage = useVerticalStore((state) => state.activePage);
   const setActivePage = useVerticalStore((state) => state.setActivePage);
+  const sosModalOpen = useVerticalStore((state) => state.sosModalOpen);
+  const setSosModalOpen = useVerticalStore((state) => state.setSosModalOpen);
 
   // Sync with URL Hash on Mount & Hashchange
   useEffect(() => {
@@ -55,6 +58,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 selection:bg-emerald-100 selection:text-emerald-900 flex flex-col justify-between pb-16 md:pb-0">
+      {/* Central Emergency SOS Modal for 1-Tap Trigger */}
+      <EmergencySOSModal isOpen={sosModalOpen} onClose={() => setSosModalOpen(false)} />
+
       {/* Sticky Header Navbar */}
       <Navbar />
 
