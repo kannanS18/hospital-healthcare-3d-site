@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PhoneCall,
   MapPin,
@@ -18,10 +18,16 @@ export function EmergencySOSModal({ isOpen, onClose }) {
   const [locationError, setLocationError] = useState('');
   const [triageStep, setTriageStep] = useState('question'); // 'question' | 'danger' | 'urgent'
 
-  if (!isOpen) return null;
-
   const EMERGENCY_NUMBER = '8072212411';
   const TEL_URL = `tel:${EMERGENCY_NUMBER}`;
+
+  useEffect(() => {
+    if (isOpen) {
+      handleFetchLocation();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
 
   const handleFetchLocation = () => {
     if (!navigator.geolocation) {
