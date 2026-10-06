@@ -77,11 +77,6 @@ export function EmergencySOSModal({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       handleFetchLocation();
-      // On mobile, auto-trigger the phone dialer after 500ms so patient is immediately connected
-      const timer = setTimeout(() => {
-        window.location.href = TEL_URL;
-      }, 600);
-      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
