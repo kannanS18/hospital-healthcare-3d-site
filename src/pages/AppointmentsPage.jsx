@@ -4,12 +4,12 @@ import { Calendar, Clock, User, Phone, Mail, CheckCircle2, FileText, Printer, Ar
 import confetti from 'canvas-confetti';
 
 const DOCTOR_OPTIONS = [
-  { id: 'doc-1', name: 'Dr. Maya Thorne, MD, FACC', spec: 'Cardiology & Heart Center', fee: '$180' },
-  { id: 'doc-2', name: 'Dr. Aris Thorne, MD, PhD', spec: 'Neurology & Brain Sciences', fee: '$220' },
-  { id: 'doc-3', name: 'Dr. Priya Sharma, MD, FAAP', spec: 'Pediatrics & Child Wellness', fee: '$150' },
-  { id: 'doc-4', name: 'Dr. David Chen, MD, FAAOS', spec: 'Orthopedics & Joint Surgery', fee: '$190' },
-  { id: 'doc-5', name: 'Dr. Sarah Jenkins, MD, PhD', spec: 'Comprehensive Oncology', fee: '$240' },
-  { id: 'doc-6', name: 'Dr. Robert Torres, MD, FACS', spec: 'da Vinci Robotic Surgery', fee: '$210' },
+  { id: 'doc-1', name: 'Dr. Maya Thorne, MD, FACC', spec: 'Cardiology & Heart Center', fee: '₹1,500' },
+  { id: 'doc-2', name: 'Dr. Aris Thorne, MD, PhD', spec: 'Neurology & Brain Sciences', fee: '₹1,800' },
+  { id: 'doc-3', name: 'Dr. Priya Sharma, MD, FAAP', spec: 'Pediatrics & Child Wellness', fee: '₹1,200' },
+  { id: 'doc-4', name: 'Dr. David Chen, MD, FAAOS', spec: 'Orthopedics & Joint Surgery', fee: '₹1,600' },
+  { id: 'doc-5', name: 'Dr. Sarah Jenkins, MD, PhD', spec: 'Comprehensive Oncology', fee: '₹2,000' },
+  { id: 'doc-6', name: 'Dr. Robert Torres, MD, FACS', spec: 'da Vinci Robotic Surgery', fee: '₹1,750' },
 ];
 
 export function AppointmentsPage() {
