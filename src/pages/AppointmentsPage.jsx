@@ -39,7 +39,7 @@ export function AppointmentsPage() {
       date: appointmentDate,
       time: selectedSlot,
       insurance: insurance,
-      location: 'AuraCare Pavilion, 450 Medical Sciences Way, Wing B',
+      location: 'Metro General Pavilion, 450 Medical Sciences Way, Wing B',
     };
 
     setConfirmedPass(passData);
@@ -220,14 +220,14 @@ export function AppointmentsPage() {
           <div>
             <h2 className="text-2xl font-extrabold text-slate-900">Appointment Confirmed!</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Your consultation has been scheduled with AuraCare Health Systems.
+              Your consultation has been scheduled with Metro General Health Systems.
             </p>
           </div>
 
           {/* Printable Card */}
           <div className="p-6 rounded-2xl bg-slate-50 border border-emerald-200 text-left space-y-4 max-w-lg mx-auto shadow-sm">
             <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-              <span className="font-bold text-emerald-800 text-xs tracking-wider">AURACARE MEDICAL PASS</span>
+              <span className="font-bold text-emerald-800 text-xs tracking-wider">METRO GENERAL MEDICAL PASS</span>
               <span className="font-mono font-bold text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
                 {confirmedPass.code}
               </span>

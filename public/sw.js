@@ -1,5 +1,5 @@
-// AuraCare+ Medical Center - Progressive Web App Service Worker
-const CACHE_NAME = 'auracare-v1';
+// Metro General Hospital & Medical Center - Progressive Web App Service Worker
+const CACHE_NAME = 'metro-general-v1';
 const STATIC_ASSETS = [
   './',
   './index.html',

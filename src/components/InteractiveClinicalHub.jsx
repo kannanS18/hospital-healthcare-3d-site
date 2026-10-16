@@ -424,7 +424,7 @@ export function InteractiveClinicalHub({ onOpenBooking }) {
                   <span>Immediate Life-Threatening Emergency?</span>
                 </div>
                 <div className="text-[11px] text-red-700 mt-0.5">
-                  Direct line to AuraCare Level-1 Trauma Desk & Rapid Ambulance Dispatch.
+                  Direct line to Metro General Level-1 Trauma Desk & Rapid Ambulance Dispatch.
                 </div>
               </div>
 
@@ -532,7 +532,7 @@ export function InteractiveClinicalHub({ onOpenBooking }) {
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
           <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>AuraCare JCI Clinical Center</span>
+            <span>Metro General JCI Clinical Center</span>
           </div>
           <div className="flex items-center gap-2">
             <span>24/7 Emergency SOS:</span>

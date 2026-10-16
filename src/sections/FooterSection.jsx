@@ -17,7 +17,7 @@ export function FooterSection() {
                 <Activity className="w-5 h-5" />
               </div>
               <div className="text-2xl font-extrabold text-white tracking-tight">
-                AURACARE+
+                METRO GENERAL
               </div>
             </div>
 
@@ -97,7 +97,7 @@ export function FooterSection() {
                 +91 8072212411
               </a>
               <p className="text-[11px] text-slate-400 pt-2">
-                AuraCare Pavilion, 450 Medical Sciences Way, Boston, MA
+                Metro General Pavilion, 450 Medical Sciences Way
               </p>
             </div>
           </div>
@@ -106,7 +106,7 @@ export function FooterSection() {
         {/* Bottom Copyright & Disclaimer */}
         <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <div>
-            © {currentYear} AuraCare Health Systems. All rights reserved. JCI & HIPAA Compliant.
+            © {currentYear} Metro General Health Systems. All rights reserved. JCI & HIPAA Compliant.
           </div>
           <div className="flex items-center gap-6">
             <span className="hover:text-slate-300 cursor-pointer">Patient Rights</span>

@@ -17,7 +17,7 @@ const DOCTORS = [
     availableToday: true,
     nextSlot: 'Today, 2:30 PM',
     fee: '₹1,500',
-    bio: 'Internationally recognized interventional cardiologist specializing in complex coronary interventions, transcatheter aortic valve replacements (TAVR), and preventive cardiac health. Serves as Lead Physician and Chief Medical Officer at AuraCare.',
+    bio: 'Internationally recognized interventional cardiologist specializing in complex coronary interventions, transcatheter aortic valve replacements (TAVR), and preventive cardiac health. Serves as Lead Physician and Chief Medical Officer at Metro General.',
     languages: 'English, French, Spanish',
   },
   {
