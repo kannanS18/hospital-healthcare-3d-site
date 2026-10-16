@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="auraGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#auraGrad192)" />
+  <g fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M45 96h30l14-27 15 54 14-27h29" />
+    <path d="M96 45v15M96 132v15" opacity="0.8" stroke-width="10" />
+  </g>
+  <circle cx="96" cy="96" r="6" fill="#ffffff" />
+</svg>
