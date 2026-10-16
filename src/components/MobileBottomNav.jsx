@@ -57,7 +57,7 @@ export function MobileBottomNav() {
               +
             </div>
             <div>
-              <div className="text-xs font-bold text-white leading-tight">Install Metro General App</div>
+              <div className="text-xs font-bold text-white leading-tight">Install Central Hospital App</div>
               <div className="text-[10px] text-slate-400">Offline clinical access & 1-tap SOS</div>
             </div>
           </div>

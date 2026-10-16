@@ -33,7 +33,7 @@ export function ContactEmergencyPage() {
             Emergency Care & Direct Hospital Response
           </h1>
           <p className="text-sm text-slate-600 leading-relaxed">
-            In medical emergencies, speed is everything. Metro General provides instant 1-tap emergency ambulance dispatch, live GPS positioning, and immediate connection to attending trauma surgeons.
+            In medical emergencies, speed is everything. Central Hospital provides instant 1-tap emergency ambulance dispatch, live GPS positioning, and immediate connection to attending trauma surgeons.
           </p>
         </div>
 
@@ -177,7 +177,7 @@ export function ContactEmergencyPage() {
                 <MapPin className="w-4 h-4" />
                 <span>Trauma Center Entrance</span>
               </div>
-              <div className="text-xs font-bold text-slate-900">Metro General Pavilion, 450 Medical Sciences Way</div>
+              <div className="text-xs font-bold text-slate-900">Central Hospital Pavilion, 450 Medical Sciences Way</div>
               <p className="text-[11px] text-slate-500">Dedicated ambulance bay ramp with sheltered emergency drop-off.</p>
             </div>
 

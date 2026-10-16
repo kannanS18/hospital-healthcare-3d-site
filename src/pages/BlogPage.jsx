@@ -39,7 +39,7 @@ Using high-definition fluoroscopic and 3D echocardiographic guidance, an artific
 
 ### Key Clinical Benefits
 - **No Large Sternotomy**: Done entirely through a pencil-thin groin incision.
-- **Rapid Mobilization**: Over 85% of Metro General TAVR patients are walking comfortably within 6 hours.
+- **Rapid Mobilization**: Over 85% of Central Hospital TAVR patients are walking comfortably within 6 hours.
 - **Fast Discharge**: Typical recovery requires 24 to 36 hours compared to 7–10 days with open surgery.
 
 ### When to Seek Evaluation
@@ -74,12 +74,12 @@ Every single minute of untreated acute ischemic stroke destroys approximately 1.
 - **S (Speech)**: Slurred speech or difficulty finding words.
 - **T (Time)**: Time is brain. Call 8072212411 immediately.
 
-### Modern Interventions at Metro General
+### Modern Interventions at Central Hospital
 Our comprehensive stroke center operates with a door-to-needle time under 18 minutes for IV thrombolysis, followed by biplane neuro-angiography for catheter-based clot extraction (thrombectomy).
     `,
     takeaways: [
       'Immediate action saves up to 1.9M brain cells per minute',
-      'Metro General door-to-treatment under 18 minutes',
+      'Central Hospital door-to-treatment under 18 minutes',
       'Do not drive to hospital: call emergency ambulance at 8072212411',
     ],
   },
@@ -183,7 +183,7 @@ If any of these signs appear, seek immediate pediatric emergency care or call ou
     takeaways: [
       'Chest retractions and nasal flaring indicate breathing fatigue',
       'Steam inhalation and cool mist can relieve mild croup swelling',
-      'Pediatric emergency room available 24/7 at Metro General',
+      'Pediatric emergency room available 24/7 at Central Hospital',
     ],
   },
 ];
@@ -219,7 +219,7 @@ export function BlogPage() {
           Clinical Insights & Medical Discoveries
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Evidence-based health guides, surgical breakthroughs, and preventative wellness insights written directly by Metro General's attending department chairs.
+          Evidence-based health guides, surgical breakthroughs, and preventative wellness insights written directly by Central Hospital's attending department chairs.
         </p>
       </div>
 
@@ -525,7 +525,7 @@ export function BlogPage() {
             <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span className="flex items-center gap-1 text-emerald-700 font-semibold">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Verified by Metro General Medical Board</span>
+                <span>Verified by Central Hospital Medical Board</span>
               </span>
               <button
                 onClick={() => setActiveArticle(null)}

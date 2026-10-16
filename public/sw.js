@@ -1,5 +1,5 @@
-// Metro General Hospital & Medical Center - Progressive Web App Service Worker
-const CACHE_NAME = 'metro-general-v1';
+// Central Hospital & Medical Center - Progressive Web App Service Worker
+const CACHE_NAME = 'central-hospital-v1';
 const STATIC_ASSETS = [
   './',
   './index.html',

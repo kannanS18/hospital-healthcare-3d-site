@@ -78,11 +78,11 @@ export function Navbar() {
             </div>
             <div>
               <div className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950 flex items-center gap-1">
-                <span>METRO GENERAL</span>
+                <span>CENTRAL HOSPITAL</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
               </div>
               <div className="text-[10px] tracking-wider uppercase font-semibold text-emerald-800">
-                Hospital & Medical Center
+                Medical Center & Health System
               </div>
             </div>
           </div>

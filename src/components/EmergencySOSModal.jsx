@@ -57,7 +57,7 @@ export function EmergencySOSModal({ isOpen, onClose }) {
         // Auto-copy coordinates to clipboard as fallback
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(
-            `🚨 [Metro General SOS Incident ${incidentId}] Emergency Pin: ${mapsLink} (Lat: ${data.lat}, Lng: ${data.lng}, Acc: ±${data.accuracy}m)`
+            `🚨 [Central Hospital SOS Incident ${incidentId}] Emergency Pin: ${mapsLink} (Lat: ${data.lat}, Lng: ${data.lng}, Acc: ±${data.accuracy}m)`
           ).then(() => setCopied(true)).catch(() => {});
         }
 
@@ -81,9 +81,9 @@ export function EmergencySOSModal({ isOpen, onClose }) {
 
         // Store to local emergency dispatch log
         try {
-          const log = JSON.parse(localStorage.getItem('metro_general_emergency_beacons') || '[]');
+          const log = JSON.parse(localStorage.getItem('central_hospital_emergency_beacons') || '[]');
           log.unshift({ ...data, date: new Date().toISOString() });
-          localStorage.setItem('metro_general_emergency_beacons', JSON.stringify(log.slice(0, 10)));
+          localStorage.setItem('central_hospital_emergency_beacons', JSON.stringify(log.slice(0, 10)));
         } catch (e) {}
       },
       (err) => {
@@ -146,7 +146,7 @@ export function EmergencySOSModal({ isOpen, onClose }) {
                   #{incidentId}
                 </span>
               </div>
-              <p className="text-[11px] text-rose-100 font-medium">Metro General Dedicated Emergency Desk</p>
+              <p className="text-[11px] text-rose-100 font-medium">Central Hospital Dedicated Emergency Desk</p>
             </div>
           </div>
           <button

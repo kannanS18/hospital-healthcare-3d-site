@@ -5,7 +5,7 @@ export const VERTICAL_KEYS = {
 export const THEMES = {
   [VERTICAL_KEYS.HOSPITAL]: {
     id: 'hospital',
-    brandName: 'METRO GENERAL',
+    brandName: 'Central Hospital',
     brandSubtitle: 'CENTERS OF EXCELLENCE',
     tagline: 'World-Class Healthcare. Compassionately Delivered.',
     icon: 'Activity',
@@ -38,7 +38,7 @@ export const THEMES = {
   // Fallback alias
   hospital: {
     id: 'hospital',
-    brandName: 'METRO GENERAL',
+    brandName: 'Central Hospital',
     brandSubtitle: 'CENTERS OF EXCELLENCE',
     tagline: 'World-Class Healthcare. Compassionately Delivered.',
     icon: 'Activity',
